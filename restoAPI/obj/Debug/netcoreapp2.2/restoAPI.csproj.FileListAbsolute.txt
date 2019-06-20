@@ -1,0 +1,14 @@
+C:\Proyectos\Pizzeria\restoAPI\restoAPI\bin\Debug\netcoreapp2.2\restoAPI.deps.json
+C:\Proyectos\Pizzeria\restoAPI\restoAPI\bin\Debug\netcoreapp2.2\restoAPI.runtimeconfig.json
+C:\Proyectos\Pizzeria\restoAPI\restoAPI\bin\Debug\netcoreapp2.2\restoAPI.runtimeconfig.dev.json
+C:\Proyectos\Pizzeria\restoAPI\restoAPI\bin\Debug\netcoreapp2.2\restoAPI.dll
+C:\Proyectos\Pizzeria\restoAPI\restoAPI\bin\Debug\netcoreapp2.2\restoAPI.pdb
+C:\Proyectos\Pizzeria\restoAPI\restoAPI\obj\Debug\netcoreapp2.2\restoAPI.csproj.CoreCompileInputs.cache
+C:\Proyectos\Pizzeria\restoAPI\restoAPI\obj\Debug\netcoreapp2.2\restoAPI.RazorAssemblyInfo.cache
+C:\Proyectos\Pizzeria\restoAPI\restoAPI\obj\Debug\netcoreapp2.2\restoAPI.RazorAssemblyInfo.cs
+C:\Proyectos\Pizzeria\restoAPI\restoAPI\obj\Debug\netcoreapp2.2\restoAPI.AssemblyInfoInputs.cache
+C:\Proyectos\Pizzeria\restoAPI\restoAPI\obj\Debug\netcoreapp2.2\restoAPI.AssemblyInfo.cs
+C:\Proyectos\Pizzeria\restoAPI\restoAPI\obj\Debug\netcoreapp2.2\restoAPI.RazorTargetAssemblyInfo.cache
+C:\Proyectos\Pizzeria\restoAPI\restoAPI\obj\Debug\netcoreapp2.2\restoAPI.dll
+C:\Proyectos\Pizzeria\restoAPI\restoAPI\obj\Debug\netcoreapp2.2\restoAPI.pdb
+C:\Proyectos\Pizzeria\restoAPI\restoAPI\obj\Debug\netcoreapp2.2\restoAPI.csprojAssemblyReference.cache
