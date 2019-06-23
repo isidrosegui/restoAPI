@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using restoAPI.Context;
@@ -11,42 +12,42 @@ namespace restoAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ClientesController: ControllerBase
+    public class TiposTelefonoController : ControllerBase
     {
         private readonly ApplicationDbContext context;
-        public ClientesController(ApplicationDbContext context)
+        public TiposTelefonoController(ApplicationDbContext context)
         {
             this.context = context;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Cliente>> Get()
+        public ActionResult<IEnumerable<TipoTelefono>> Get()
         {
             //TODO: Luego vamos a ver como lo hacemos de forma asincronica
-            return context.Clientes.ToList();
+            return context.TiposTelefono.Where(x => x.FechaBaja == null).ToList();
         }
 
-        [HttpGet("{id}", Name = "ObtenerClienteById")]
-        public async Task<ActionResult<Cliente>> Get(Int16 id)
+        [HttpGet("{id}", Name = "ObtenerTiposTelefonoById")]
+        public ActionResult<TipoTelefono> Get(Int16 id)
         {
-            var cliente = await context.Clientes.Include(x=>x.Direcciones).FirstOrDefaultAsync(x => x.Id == id);
-            if (cliente == null)
+            var value = context.TiposTelefono.FirstOrDefault(x => x.Id == id);
+            if (value == null)
             {
                 return NotFound();
             }
-            return cliente;
+            return value;
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] Cliente cliente)
+        public ActionResult Post([FromBody] TipoTelefono value)
         {
-            await context.Clientes.AddAsync(cliente);
+            context.TiposTelefono.Add(value);
             context.SaveChanges();
-            return new CreatedAtRouteResult("ObtenerProductoById", new { id = cliente.Id }, cliente);
+            return new CreatedAtRouteResult("ObtenerBarrioById", new { id = value.Id }, value);
         }
 
         [HttpPut("{id}")]
-        public ActionResult Put(Int16 id, [FromBody] Cliente value)
+        public ActionResult Put(Int16 id, [FromBody] TipoTelefono value)
         {
             if (id != value.Id)
             {
@@ -59,16 +60,16 @@ namespace restoAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult<Cliente> Delete(Int16 id)
+        public ActionResult<TipoTelefono> Delete(Int16 id)
         {
-            var cliente = context.Clientes.FirstOrDefault(x => x.Id == id);
-            if (cliente == null)
+            var value = context.TiposTelefono.FirstOrDefault(x => x.Id == id);
+            if (value == null)
             {
                 return NotFound();
             }
-            context.Clientes.Remove(cliente);
+            context.TiposTelefono.Remove(value);
             context.SaveChanges();
-            return cliente;
+            return value;
 
         }
     }

@@ -22,11 +22,26 @@ namespace restoAPI.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Producto>> Get()
+        public async Task<ActionResult<IEnumerable<Producto>>> Get()
         {
             //TODO: Luego vamos a ver como lo hacemos de forma asincronica
-            ActionResult<IEnumerable<Producto>> accion = context.Productos.Include(y => y.HistoPrecios).Include(h => h.TipoDeProducto).Where(x => x.FechaBaja == null).ToList();
+            ActionResult<IEnumerable<Producto>> accion = await context.Productos.Include(y => y.HistoPrecios).Include(h => h.TipoDeProducto).ToListAsync();
             foreach(Producto p in accion.Value)
+            {
+                p.PrecioActual = p.HistoPrecios.First(x => x.FechaBaja == null);
+            }
+            return accion;
+        }
+        [HttpGet("filtrado")]
+        public async Task<ActionResult<IEnumerable<Producto>>> Get([FromQuery]string idTipoProd, [FromQuery] string nombre, [FromQuery]string idEstado)
+        {
+            //TODO: Luego vamos a ver como lo hacemos de forma asincronica
+            var a = "muzza";
+            ActionResult<IEnumerable<Producto>> accion = await context.Productos.Include(y => y.HistoPrecios).Include(h => h.TipoDeProducto).Where
+                (x => (string.IsNullOrEmpty(idTipoProd)  || x.TipoDeProducto.Id ==Convert.ToInt32(idTipoProd)) &&
+                    (string.IsNullOrEmpty(nombre) || a.ToLower().StartsWith(nombre.ToLower())) &&
+                        ((string.IsNullOrEmpty(idEstado)) || idEstado=="2" || (idEstado == "1" && x.FechaBaja != null) || (idEstado == "0" && x.FechaBaja == null))).ToListAsync();
+            foreach (Producto p in accion.Value)
             {
                 p.PrecioActual = p.HistoPrecios.First(x => x.FechaBaja == null);
             }
@@ -45,7 +60,7 @@ namespace restoAPI.Controllers
         }
 
         [HttpPost]
-        public ActionResult Post([FromBody] Producto value)
+        public async Task<ActionResult> Post([FromBody] Producto value)
         {
             if (value.PrecioActual.Id != 0)
             {
@@ -56,7 +71,7 @@ namespace restoAPI.Controllers
             {
                 context.Entry(p).State = EntityState.Detached;
             }*/
-            context.Productos.Add(value);
+            await context.Productos.AddAsync(value);
             
 
             
@@ -103,9 +118,9 @@ namespace restoAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult<Producto> Delete(Int16 id)
+        public async Task<ActionResult<Producto>> Delete(Int16 id)
         {
-            var value = context.Productos.FirstOrDefault(x => x.Id == id);
+            var value = await context.Productos.FirstOrDefaultAsync(x => x.Id == id);
             if (value == null)
             {
                 return NotFound();
