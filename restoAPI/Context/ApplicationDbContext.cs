@@ -38,7 +38,7 @@ namespace restoAPI.Context
         public DbSet<TipoProducto> TiposProducto { get; set; }
         public DbSet<TipoTelefono> TiposTelefono{ get; set; }
 
-
+       
 
     }
 }

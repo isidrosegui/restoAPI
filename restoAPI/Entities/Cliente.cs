@@ -13,11 +13,12 @@ namespace restoAPI.Entities
         public String Nombre { get; set; }
         public String Email { get; set; }
         public String Telefono { get; set; }
-        public String TipoTelefono { get; set; }
+        public TipoTelefono TipoTelefono { get; set; }
         public String UsuarioFacebook { get; set; }
         public String UsuarioInstagram { get; set; }
         public List<Direccion> Direcciones { get; set; }
         public DateTime FechaAlta { get; set; }
         public DateTime? FechaBaja { get; set; }
+        public string CUIT { get; set; }
     }
 }

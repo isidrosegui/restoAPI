@@ -36,10 +36,10 @@ namespace restoAPI.Controllers
         public async Task<ActionResult<IEnumerable<Producto>>> Get([FromQuery]string idTipoProd, [FromQuery] string nombre, [FromQuery]string idEstado)
         {
             //TODO: Luego vamos a ver como lo hacemos de forma asincronica
-            var a = "muzza";
+            
             ActionResult<IEnumerable<Producto>> accion = await context.Productos.Include(y => y.HistoPrecios).Include(h => h.TipoDeProducto).Where
                 (x => (string.IsNullOrEmpty(idTipoProd)  || x.TipoDeProducto.Id ==Convert.ToInt32(idTipoProd)) &&
-                    (string.IsNullOrEmpty(nombre) || a.ToLower().StartsWith(nombre.ToLower())) &&
+                    (string.IsNullOrEmpty(nombre) || x.Nombre.ToLower().StartsWith(nombre.ToLower())) &&
                         ((string.IsNullOrEmpty(idEstado)) || idEstado=="2" || (idEstado == "1" && x.FechaBaja != null) || (idEstado == "0" && x.FechaBaja == null))).ToListAsync();
             foreach (Producto p in accion.Value)
             {
@@ -72,9 +72,6 @@ namespace restoAPI.Controllers
                 context.Entry(p).State = EntityState.Detached;
             }*/
             await context.Productos.AddAsync(value);
-            
-
-            
             context.Entry(value.TipoDeProducto).State = EntityState.Detached;
             context.SaveChanges();
             return new CreatedAtRouteResult("ObtenerProductoById", new { id = value.Id }, value);
