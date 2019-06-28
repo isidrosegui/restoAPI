@@ -1,6 +1,7 @@
 ﻿using restoAPI.Entities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ namespace restoAPI.Entities
         public DateTime? FechaAlta { get; set; }
         public TimeSpan HoraAlta { get; set; }
         public TimeSpan HoraEntrega { get; set; }
+        [NotMapped]
         public List<DetallePedido> DetallesPedido { get; set; }
         public Decimal MontoTotal { get; set; }
         public Decimal Descuento { get; set; }

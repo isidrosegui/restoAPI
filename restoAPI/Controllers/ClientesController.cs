@@ -23,7 +23,7 @@ namespace restoAPI.Controllers
         public ActionResult<IEnumerable<Cliente>> Get()
         {
             //TODO: Luego vamos a ver como lo hacemos de forma asincronica
-            return context.Clientes.ToList();
+            return context.Clientes.Include("Direcciones.Barrio").Include("Direcciones.TipoDireccion").ToList();
         }
 
         [HttpGet("filtrado")]
@@ -31,7 +31,7 @@ namespace restoAPI.Controllers
         {
             //TODO: Luego vamos a ver como lo hacemos de forma asincronica
             ActionResult<IEnumerable<Cliente>> accion = 
-                await context.Clientes.Include(y => y.Direcciones).
+                await context.Clientes.Include("Direcciones.Barrio").Include("Direcciones.TipoDireccion").
                     Include(y => y.TipoCliente).
                         Include(y => y.TipoTelefono).
                         Where(x => (string.IsNullOrEmpty(telefono) || x.Telefono == telefono) &&
@@ -44,7 +44,7 @@ namespace restoAPI.Controllers
         [HttpGet("{id}", Name = "ObtenerClienteById")]
         public async Task<ActionResult<Cliente>> Get(Int16 id)
         {
-            var cliente = await context.Clientes.Include(x=>x.Direcciones).FirstOrDefaultAsync(x => x.Id == id);
+            var cliente = await context.Clientes.Include("Direcciones.Barrio").Include("Direcciones.TipoDireccion").FirstOrDefaultAsync(x => x.Id == id);
             if (cliente == null)
             {
                 return NotFound();
@@ -112,7 +112,7 @@ namespace restoAPI.Controllers
             try
             {
                 var cliExistente = await context.Clientes.Where(p => p.Id == value.Id)
-                    .Include(p => p.TipoCliente).Include(p => p.TipoTelefono).Include(p=>p.Direcciones).SingleOrDefaultAsync();
+                    .Include(p => p.TipoCliente).Include(p => p.TipoTelefono).Include("Direcciones.Barrio").Include("Direcciones.TipoDireccion").SingleOrDefaultAsync();
 
                 context.Entry(cliExistente).CurrentValues.SetValues(value);
 
@@ -120,6 +120,16 @@ namespace restoAPI.Controllers
                 {
                     return BadRequest();
                 }
+                //Modifico las direcciones existentes.
+                foreach(Direccion d in cliExistente.Direcciones)
+                {
+                    var dir = value.Direcciones.First(x => x.Id == d.Id);
+                    context.Entry(d).CurrentValues.SetValues(dir);
+                    d.Barrio = await context.Barrios.Where(p => p.Id == dir.Barrio.Id).FirstAsync();
+                    d.TipoDireccion = await context.TiposDireccion.Where(p => p.Id == dir.TipoDireccion.Id).FirstAsync();
+
+                }
+
                 if (value.Direcciones.Count != cliExistente.Direcciones.Count)
                 {
                     int cant = value.Direcciones.Count;
@@ -139,12 +149,14 @@ namespace restoAPI.Controllers
                         Observacion = value.Direcciones[cant - 1].Observacion
                     };
                     cliExistente.Direcciones.Add(d);
-                    foreach(Direccion d in cliExistente.Direcciones)
+                    foreach(Direccion di in cliExistente.Direcciones)
                     {
-                        d.TipoDireccion = await context.TiposDireccion.Where(p => p.Id == d.TipoDireccion.Id).FirstAsync();
-                        d.Barrio= await context.Barrios.Where(p => p.Id == d.Barrio.Id).FirstAsync();
+                        d.TipoDireccion = await context.TiposDireccion.Where(p => p.Id == di.TipoDireccion.Id).FirstAsync();
+                        d.Barrio= await context.Barrios.Where(p => p.Id == di.Barrio.Id).FirstAsync();
                     }
                 }
+
+
                 cliExistente.TipoCliente= await context.TiposCliente.Where(p => p.Id == value.TipoCliente.Id).FirstAsync();
                 cliExistente.TipoTelefono = await context.TiposTelefono.Where(p => p.Id == value.TipoTelefono.Id).FirstAsync();
                 
