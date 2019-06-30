@@ -28,7 +28,7 @@ namespace restoAPI.Controllers
             return context.FormasPago.ToList();
         }
 
-        [HttpGet("{id}", Name = "ObtenerFormaPagooById")]
+        [HttpGet("{id}", Name = "ObtenerFormaPagoById")]
         public ActionResult<FormaPago> Get(Int16 id)
         {
             var value = context.FormasPago.FirstOrDefault(x => x.Id == id);
@@ -40,11 +40,18 @@ namespace restoAPI.Controllers
         }
 
         [HttpPost]
-        public ActionResult Post([FromBody] FormaPago value)
+        public async Task<ActionResult> Post([FromBody] FormaPago value)
         {
-            context.FormasPago.Add(value);
-            context.SaveChanges();
-            return new CreatedAtRouteResult("ObtenerFormaPagoById", new { id = value.Id }, value);
+            try
+            {
+                context.FormasPago.Add(value);
+                await context.SaveChangesAsync();
+                return new CreatedAtRouteResult("ObtenerFormaPagoById", new { id = value.Id }, value);
+            }
+            catch(Exception ex)
+            {
+               return BadRequest(ex);
+            }
         }
 
         [HttpPut("{id}")]

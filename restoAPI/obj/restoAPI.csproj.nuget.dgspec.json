@@ -1,24 +1,26 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Proyectos\\Pizzeria\\restoAPI\\restoAPI\\restoAPI.csproj": {}
+    "C:\\Proyectos\\Restorant\\restoAPI\\restoAPI\\restoAPI.csproj": {}
   },
   "projects": {
-    "C:\\Proyectos\\Pizzeria\\restoAPI\\restoAPI\\restoAPI.csproj": {
+    "C:\\Proyectos\\Restorant\\restoAPI\\restoAPI\\restoAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Proyectos\\Pizzeria\\restoAPI\\restoAPI\\restoAPI.csproj",
+        "projectUniqueName": "C:\\Proyectos\\Restorant\\restoAPI\\restoAPI\\restoAPI.csproj",
         "projectName": "restoAPI",
-        "projectPath": "C:\\Proyectos\\Pizzeria\\restoAPI\\restoAPI\\restoAPI.csproj",
-        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Proyectos\\Pizzeria\\restoAPI\\restoAPI\\obj\\",
+        "projectPath": "C:\\Proyectos\\Restorant\\restoAPI\\restoAPI\\restoAPI.csproj",
+        "packagesPath": "C:\\Users\\isidr\\.nuget\\packages\\",
+        "outputPath": "C:\\Proyectos\\Restorant\\restoAPI\\restoAPI\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
+          "C:\\Microsoft\\Xamarin\\NuGet\\",
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\isidr\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],
         "originalTargetFrameworks": [
           "netcoreapp2.2"

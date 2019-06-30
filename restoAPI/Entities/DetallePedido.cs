@@ -15,7 +15,7 @@ namespace restoAPI.Entities
         public Decimal Descuento { get; set; }
         public Decimal Subtotal { get; set; }
         public DateTime? FechaBaja { get; set; }
-        public TimeSpan HoraBaja { get; set; }
+        public TimeSpan? HoraBaja { get; set; }
         public DetallePedido ShallowCopy()
         {
             return (DetallePedido)this.MemberwiseClone();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,8 +16,12 @@ namespace restoAPI.Entities
         public List<DetallePedido> Detalles { get; set; }
         public String Observaciones { get; set; }
         public DateTime? FechaBaja { get; set; }
-        public TimeSpan HoraBaja { get; set; }
+        public TimeSpan? HoraBaja { get; set; }
 
+        public Comanda ShallowCopy()
+        {
+            return (Comanda)this.MemberwiseClone();
+        }
 
     }
 }

@@ -32,9 +32,38 @@ namespace restoAPI.Controllers
         public async Task<ActionResult<IEnumerable<Pedido>>> Get([FromQuery]int idEstado)
         {
             //TODO: Luego vamos a ver como lo hacemos de forma asincronica
-            return await context.Pedidos.Include(x=>x.DetallesPedido).Include(x=>x.PuntoExpendio).Include(x=>x.Direccion).Include(x=>x.Cliente).Include(x=>x.ListaComandas).Include(x=>x.Cobros).Include(x=>x.EstadoPedido).Where(x=>x.EstadoPedido.Id==idEstado).ToListAsync();
+            return await context.Pedidos.Include(x=>x.PuntoExpendio).Include(x=>x.Direccion).Include(x=>x.Cliente).Include(x=>x.ListaComandas).Include(x=>x.Cobros).Include(x=>x.EstadoPedido).Where(x=>x.EstadoPedido.Id==idEstado).ToListAsync();
 
         }
+
+        [HttpGet("modificables")]
+        public async Task<ActionResult<IEnumerable<Pedido>>> GetAbiertos()
+        {
+            //TODO: Luego vamos a ver como lo hacemos de forma asincronica
+            List<int> ids = new List<int>();
+            
+            List<Pedido> listaPedidos = await context.Pedidos.Include(x => x.PuntoExpendio).Include("Direccion.Barrio").Include("Direccion.TipoDireccion").Include(x=>x.ListaComandas).Include(x => x.Cliente).Include(x => x.Cobros).Include(x => x.EstadoPedido).Where(x => x.EstadoPedido.Id<4).ToListAsync();
+            
+            foreach(Pedido p in listaPedidos)
+            {
+                p.DetallesPedido = new List<DetallePedido>();
+                for (int i =0; i< p.ListaComandas.Count;i++)
+                {
+                    p.ListaComandas[i] = await context.Comandas.Include("Detalles.Producto").Include("Detalles.Producto.HistoPrecios").Where(x=>x.Id == p.ListaComandas[i].Id).FirstOrDefaultAsync();
+                    foreach(DetallePedido d in p.ListaComandas[i].Detalles)
+                    {
+                        d.Producto.PrecioActual = d.Producto.HistoPrecios.FirstOrDefault(x => x.FechaBaja == null);
+
+                        p.DetallesPedido.Add(d);
+
+                    }
+                }
+            }
+            
+            return listaPedidos;
+        }
+
+
 
 
         [HttpGet("{id}", Name = "ObtenerPedidoById")]
@@ -112,13 +141,49 @@ namespace restoAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public ActionResult Put(Int16 id, [FromBody] Pedido value)
+        public async Task<ActionResult> Put(Int16 id, [FromBody] Pedido value)
         {
+            var pedidoExistente = await context.Pedidos.Include("ListaComandas.Detalles").FirstOrDefaultAsync(x => x.Id == value.Id);
             if (id != value.Id)
             {
                 return BadRequest();
             }
+            //Modifico las comandas existentes
+            foreach(Comanda c in pedidoExistente.ListaComandas)
+            {
+                Comanda comModif = new Comanda();
+
+
+
+                comModif = value.ListaComandas.FirstOrDefault(x => x.Id == c.Id);
+                context.Entry(c).CurrentValues.SetValues(comModif);
+                for (int i=0; i< c.Detalles.Count; i++)
+                {
+                    c.Detalles[i].Producto = comModif.Detalles[i].Producto;
+                    c.Detalles[i].Cantidad = comModif.Detalles[i].Cantidad;
+                    c.Detalles[i].Descuento= comModif.Detalles[i].Descuento;
+                    c.Detalles[i].Subtotal= comModif.Detalles[i].Subtotal;
+                    c.Detalles[i].FechaBaja = comModif.Detalles[i].FechaBaja;
+                    c.Detalles[i].HoraBaja= comModif.Detalles[i].HoraBaja;
+                    context.Entry(c.Detalles[i].Producto).State = EntityState.Detached;
+                    context.Entry(c.Detalles[i]).State = EntityState.Modified;
+
+                }
+            }
+
+            //Agrego las nuevas comandas
+            List<Comanda> nuevasComandas = new List<Comanda>();
+            nuevasComandas =  value.ListaComandas.Where(p => p.Id == 0).ToList();
+            foreach(Comanda c in nuevasComandas)
+            { 
+                pedidoExistente.ListaComandas.Add(c.ShallowCopy());
+                context.Entry(pedidoExistente.ListaComandas[pedidoExistente.ListaComandas.Count - 1]).State = EntityState.Added;
+                
+            }
+  
             context.Entry(value).State = EntityState.Modified;
+            
+
             context.SaveChanges();
             return Ok();
 

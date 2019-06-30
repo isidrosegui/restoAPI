@@ -48,15 +48,51 @@ namespace restoAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public ActionResult Put(Int16 id, [FromBody] Comanda value)
+        public async Task<ActionResult> Put(Int16 id, [FromBody] Comanda value)
         {
-            if (id != value.Id)
+            try
             {
-                return BadRequest();
+                Comanda ce = await context.Comandas.Include("Detalles.Producto").FirstOrDefaultAsync(x => x.Id == id);
+                //modifico los detalles existentes.
+                for (int i = 0; i < ce.Detalles.Count(); i++)
+                {
+                    DetallePedido det = value.Detalles.FirstOrDefault(x => x.Id == ce.Detalles[i].Id).ShallowCopy();
+                    ce.Detalles[i].Producto = det.Producto;
+                    ce.Detalles[i].Cantidad = det.Cantidad;
+                    ce.Detalles[i].Descuento = det.Descuento;
+                    ce.Detalles[i].Subtotal = det.Subtotal;
+                    ce.Detalles[i].FechaBaja = det.FechaBaja;
+                    ce.Detalles[i].HoraBaja = det.HoraBaja;
+                    context.Entry(ce.Detalles[i].Producto).State = EntityState.Detached;
+                    context.Entry(ce.Detalles[i]).State = EntityState.Modified;
+                    //ce.Detalles[i] = 
+                    
+                }
+                List<DetallePedido> detallesNuevos = value.Detalles.Where(x => !ce.Detalles.Any(x1 => x1.Id == x.Id)).ToList();
+                if (detallesNuevos != null && detallesNuevos.Count > 0)
+                {
+                    //foreach (DetallePedido d in detallesNuevos)
+                    //{
+                    //    DetallePedido det = new DetallePedido();
+                    //    det = d.ShallowCopy();
+                    //    ce.Detalles.Add(det);
+                    //}
+
+                }
+                if (id != value.Id)
+                {
+                    return BadRequest();
+                }
+
+                context.Entry(ce).State = EntityState.Modified;
+                context.SaveChanges();
+                return Ok();
             }
-            context.Entry(value).State = EntityState.Modified;
-            context.SaveChanges();
-            return Ok();
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest(ex);
+            }
 
         }
 

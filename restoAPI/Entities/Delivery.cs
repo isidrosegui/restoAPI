@@ -17,7 +17,7 @@ namespace restoAPI.Entities
         public Decimal MontoSaldado { get; set; }
         public EstadoDelivery Estado { get; set; }
         public DateTime? FechaBaja { get; set; }
-        public TimeSpan HoraBaja { get; set; }
+        public TimeSpan? HoraBaja { get; set; }
 
     }
 }

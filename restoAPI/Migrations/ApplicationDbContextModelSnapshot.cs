@@ -47,7 +47,6 @@ namespace restoAPI.Migrations
                         .IsRequired();
 
                     b.HasKey("Id");
-                    b.HasKey("Id");
 
                     b.ToTable("Barrios");
                 });
@@ -120,7 +119,7 @@ namespace restoAPI.Migrations
 
                     b.Property<DateTime>("FechaComanda");
 
-                    b.Property<TimeSpan>("HoraBaja");
+                    b.Property<TimeSpan?>("HoraBaja");
 
                     b.Property<TimeSpan>("HoraComanda");
 
@@ -147,7 +146,7 @@ namespace restoAPI.Migrations
 
                     b.Property<DateTime?>("FechaBaja");
 
-                    b.Property<TimeSpan>("HoraBaja");
+                    b.Property<TimeSpan?>("HoraBaja");
 
                     b.Property<TimeSpan>("HoraRegreso");
 
@@ -182,7 +181,7 @@ namespace restoAPI.Migrations
 
                     b.Property<TimeSpan>("HoraApertura");
 
-                    b.Property<TimeSpan>("HoraBaja");
+                    b.Property<TimeSpan?>("HoraBaja");
 
                     b.Property<TimeSpan>("HoraCierre");
 
@@ -213,7 +212,7 @@ namespace restoAPI.Migrations
 
                     b.Property<TimeSpan>("HoraApertura");
 
-                    b.Property<TimeSpan>("HoraBaja");
+                    b.Property<TimeSpan?>("HoraBaja");
 
                     b.Property<TimeSpan>("HoraCierre");
 
@@ -242,7 +241,7 @@ namespace restoAPI.Migrations
 
                     b.Property<DateTime?>("FechaBaja");
 
-                    b.Property<TimeSpan>("HoraBaja");
+                    b.Property<TimeSpan?>("HoraBaja");
 
                     b.Property<int>("IdPedido");
 
@@ -388,7 +387,7 @@ namespace restoAPI.Migrations
 
                     b.Property<TimeSpan>("HoraAlta");
 
-                    b.Property<TimeSpan>("HoraBaja");
+                    b.Property<TimeSpan?>("HoraBaja");
 
                     b.Property<int?>("MarcaTarjetaId");
 
@@ -435,7 +434,7 @@ namespace restoAPI.Migrations
 
                     b.Property<TimeSpan>("HoraAlta");
 
-                    b.Property<TimeSpan>("HoraBaja");
+                    b.Property<TimeSpan?>("HoraBaja");
 
                     b.Property<TimeSpan>("HoraEntrega");
 

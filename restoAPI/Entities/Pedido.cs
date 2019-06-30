@@ -27,7 +27,7 @@ namespace restoAPI.Entities
         public EstadoPedido EstadoPedido { get; set; }
         public PuntoExpendio PuntoExpendio { get; set; }
         public DateTime? FechaBaja { get; set; }
-        public TimeSpan HoraBaja { get; set; }
+        public TimeSpan? HoraBaja { get; set; }
 
         #region IDisposable Support
         private bool disposedValue = false; // Para detectar llamadas redundantes

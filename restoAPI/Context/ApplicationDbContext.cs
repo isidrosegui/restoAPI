@@ -10,7 +10,7 @@ namespace restoAPI.Context
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options):base(options)
         {
-
+            
         }
         public DbSet<Banco> Bancos { get; set; }
         public DbSet<Barrio> Barrios { get; set; }

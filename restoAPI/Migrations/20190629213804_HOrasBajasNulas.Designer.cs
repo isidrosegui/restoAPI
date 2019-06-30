@@ -10,8 +10,8 @@ using restoAPI.Context;
 namespace restoAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20190618165737_FechsBajaNulas")]
-    partial class FechsBajaNulas
+    [Migration("20190629213804_HOrasBajasNulas")]
+    partial class HOrasBajasNulas
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -82,6 +82,8 @@ namespace restoAPI.Migrations
 
                     b.Property<string>("Apellido");
 
+                    b.Property<string>("CUIT");
+
                     b.Property<string>("Email");
 
                     b.Property<DateTime>("FechaAlta");
@@ -94,7 +96,7 @@ namespace restoAPI.Migrations
 
                     b.Property<int?>("TipoClienteId");
 
-                    b.Property<string>("TipoTelefono");
+                    b.Property<int?>("TipoTelefonoId");
 
                     b.Property<string>("UsuarioFacebook");
 
@@ -103,6 +105,8 @@ namespace restoAPI.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("TipoClienteId");
+
+                    b.HasIndex("TipoTelefonoId");
 
                     b.ToTable("Clientes");
                 });
@@ -117,7 +121,7 @@ namespace restoAPI.Migrations
 
                     b.Property<DateTime>("FechaComanda");
 
-                    b.Property<TimeSpan>("HoraBaja");
+                    b.Property<TimeSpan?>("HoraBaja");
 
                     b.Property<TimeSpan>("HoraComanda");
 
@@ -144,7 +148,7 @@ namespace restoAPI.Migrations
 
                     b.Property<DateTime?>("FechaBaja");
 
-                    b.Property<TimeSpan>("HoraBaja");
+                    b.Property<TimeSpan?>("HoraBaja");
 
                     b.Property<TimeSpan>("HoraRegreso");
 
@@ -179,7 +183,7 @@ namespace restoAPI.Migrations
 
                     b.Property<TimeSpan>("HoraApertura");
 
-                    b.Property<TimeSpan>("HoraBaja");
+                    b.Property<TimeSpan?>("HoraBaja");
 
                     b.Property<TimeSpan>("HoraCierre");
 
@@ -210,7 +214,7 @@ namespace restoAPI.Migrations
 
                     b.Property<TimeSpan>("HoraApertura");
 
-                    b.Property<TimeSpan>("HoraBaja");
+                    b.Property<TimeSpan?>("HoraBaja");
 
                     b.Property<TimeSpan>("HoraCierre");
 
@@ -239,11 +243,9 @@ namespace restoAPI.Migrations
 
                     b.Property<DateTime?>("FechaBaja");
 
-                    b.Property<TimeSpan>("HoraBaja");
+                    b.Property<TimeSpan?>("HoraBaja");
 
                     b.Property<int>("IdPedido");
-
-                    b.Property<int?>("PedidoId");
 
                     b.Property<int?>("ProductoId");
 
@@ -252,8 +254,6 @@ namespace restoAPI.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ComandaId");
-
-                    b.HasIndex("PedidoId");
 
                     b.HasIndex("ProductoId");
 
@@ -389,7 +389,7 @@ namespace restoAPI.Migrations
 
                     b.Property<TimeSpan>("HoraAlta");
 
-                    b.Property<TimeSpan>("HoraBaja");
+                    b.Property<TimeSpan?>("HoraBaja");
 
                     b.Property<int?>("MarcaTarjetaId");
 
@@ -436,7 +436,7 @@ namespace restoAPI.Migrations
 
                     b.Property<TimeSpan>("HoraAlta");
 
-                    b.Property<TimeSpan>("HoraBaja");
+                    b.Property<TimeSpan?>("HoraBaja");
 
                     b.Property<TimeSpan>("HoraEntrega");
 
@@ -500,13 +500,9 @@ namespace restoAPI.Migrations
 
                     b.Property<string>("Nombre");
 
-                    b.Property<int?>("PrecioActualId");
-
                     b.Property<int?>("TipoDeProductoId");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PrecioActualId");
 
                     b.HasIndex("TipoDeProductoId");
 
@@ -603,6 +599,21 @@ namespace restoAPI.Migrations
                     b.ToTable("TiposProducto");
                 });
 
+            modelBuilder.Entity("restoAPI.Entities.TipoTelefono", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime?>("FechaBaja");
+
+                    b.Property<string>("Nombre");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TiposTelefono");
+                });
+
             modelBuilder.Entity("restoAPI.Entities.Caja", b =>
                 {
                     b.HasOne("restoAPI.Entities.DetalleCaja", "DetalleAbierto")
@@ -615,6 +626,10 @@ namespace restoAPI.Migrations
                     b.HasOne("restoAPI.Entities.TipoCliente", "TipoCliente")
                         .WithMany()
                         .HasForeignKey("TipoClienteId");
+
+                    b.HasOne("restoAPI.Entities.TipoTelefono", "TipoTelefono")
+                        .WithMany()
+                        .HasForeignKey("TipoTelefonoId");
                 });
 
             modelBuilder.Entity("restoAPI.Entities.Comanda", b =>
@@ -650,10 +665,6 @@ namespace restoAPI.Migrations
                     b.HasOne("restoAPI.Entities.Comanda")
                         .WithMany("Detalles")
                         .HasForeignKey("ComandaId");
-
-                    b.HasOne("restoAPI.Entities.Pedido")
-                        .WithMany("DetallesPedido")
-                        .HasForeignKey("PedidoId");
 
                     b.HasOne("restoAPI.Entities.Producto", "Producto")
                         .WithMany()
@@ -741,10 +752,6 @@ namespace restoAPI.Migrations
 
             modelBuilder.Entity("restoAPI.Entities.Producto", b =>
                 {
-                    b.HasOne("restoAPI.Entities.Precio", "PrecioActual")
-                        .WithMany()
-                        .HasForeignKey("PrecioActualId");
-
                     b.HasOne("restoAPI.Entities.TipoProducto", "TipoDeProducto")
                         .WithMany()
                         .HasForeignKey("TipoDeProductoId");

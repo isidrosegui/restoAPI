@@ -17,7 +17,7 @@ namespace restoAPI.Entities
         public Decimal MontoCierre { get; set; }
         public List<Pago> Cobros { get; set; }
         public DateTime? FechaBaja { get; set; }
-        public TimeSpan HoraBaja { get; set; }
+        public TimeSpan? HoraBaja { get; set; }
 
 
     }
