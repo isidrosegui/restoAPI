@@ -31,7 +31,7 @@ namespace restoAPI.Controllers
         [HttpGet("{id}", Name = "ObtenerComandaById")]
         public ActionResult<Comanda> Get(Int16 id)
         {
-            var value = context.Comandas.FirstOrDefault(x => x.Id == id);
+            var value = context.Comandas.Include("Detalles.Producto").FirstOrDefault(x => x.Id == id);
             if (value == null)
             {
                 return NotFound();

@@ -69,7 +69,7 @@ namespace restoAPI.Controllers
         [HttpGet("{id}", Name = "ObtenerPedidoById")]
         public ActionResult<Pedido> Get(Int16 id)
         {
-            var value = context.Pedidos.FirstOrDefault(x => x.Id == id);
+            var value = context.Pedidos.Include(x=> x.ListaComandas).FirstOrDefault(x => x.Id == id);
             if (value == null)
             {
                 return NotFound();
