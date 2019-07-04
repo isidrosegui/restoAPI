@@ -87,9 +87,9 @@ namespace restoAPI.Controllers
                 p.NroPedido = Convert.ToInt16((context.Pedidos.Where(x => x.FechaAlta == DateTime.Now.Date).Count()) + 1);
                 p.Direccion = value.Direccion;
                 value.Cliente.Direcciones = null;
-                
+                p.EstadoPedido = await context.EstadosPedido.FirstAsync(x => x.Id == 1);
                 p.Cliente = value.Cliente;
-                
+                p.PuntoExpendio = value.PuntoExpendio;
                 p.ListaComandas = new List<Comanda>();
 
                 foreach (Comanda c in value.ListaComandas)
@@ -117,6 +117,7 @@ namespace restoAPI.Controllers
                 context.Entry(p.Cliente).State = EntityState.Detached;
                 context.Entry(p.Cliente.TipoCliente).State = EntityState.Detached;
                 context.Entry(p.Cliente.TipoTelefono).State = EntityState.Detached;
+                context.Entry(p.PuntoExpendio).State = EntityState.Detached;
 
                 for (int j = 0; j < p.ListaComandas.Count; j++)
                 {
@@ -143,49 +144,40 @@ namespace restoAPI.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> Put(Int16 id, [FromBody] Pedido value)
         {
-            var pedidoExistente = await context.Pedidos.Include("ListaComandas.Detalles").FirstOrDefaultAsync(x => x.Id == value.Id);
-            if (id != value.Id)
+            try
             {
-                return BadRequest();
-            }
-            //Modifico las comandas existentes
-            foreach(Comanda c in pedidoExistente.ListaComandas)
-            {
-                Comanda comModif = new Comanda();
+                 var pedidoExistente = await context.Pedidos.Include(x => x.ListaComandas).FirstOrDefaultAsync(x => x.Id == value.Id);
+                if (id != value.Id)
+                 {
+                     return BadRequest();
+                 }
+                 pedidoExistente.ListaComandas.AddRange(value.ListaComandas.Where(x => x.Id == 0));
+                 
+                 foreach (Comanda c in pedidoExistente.ListaComandas.Where(x=>x.Id==0))
+                 {
+                    c.FechaComanda = DateTime.Now;
+                    c.HoraComanda = DateTime.Now.TimeOfDay;
+                    
+                    for (int i = 0; i < c.Detalles.Count; i++)
+                    {
+                        c.Detalles[i].Producto.HistoPrecios = null;
+                        context.Entry(c.Detalles[i].Producto).State = EntityState.Detached;
+                        context.Entry(c.Detalles[i].Producto.PrecioActual).State = EntityState.Detached;
+                        context.Entry(c.Detalles[i].Producto.TipoDeProducto).State = EntityState.Detached;
+                        //context.Entry(c.Detalles[i].Producto.).State = EntityState.Detached;
 
-
-
-                comModif = value.ListaComandas.FirstOrDefault(x => x.Id == c.Id);
-                context.Entry(c).CurrentValues.SetValues(comModif);
-                for (int i=0; i< c.Detalles.Count; i++)
-                {
-                    c.Detalles[i].Producto = comModif.Detalles[i].Producto;
-                    c.Detalles[i].Cantidad = comModif.Detalles[i].Cantidad;
-                    c.Detalles[i].Descuento= comModif.Detalles[i].Descuento;
-                    c.Detalles[i].Subtotal= comModif.Detalles[i].Subtotal;
-                    c.Detalles[i].FechaBaja = comModif.Detalles[i].FechaBaja;
-                    c.Detalles[i].HoraBaja= comModif.Detalles[i].HoraBaja;
-                    context.Entry(c.Detalles[i].Producto).State = EntityState.Detached;
-                    context.Entry(c.Detalles[i]).State = EntityState.Modified;
+                        await context.Comandas.AddAsync(c);
+                    }
+                    context.SaveChanges();
+                
 
                 }
-            }
-
-            //Agrego las nuevas comandas
-            List<Comanda> nuevasComandas = new List<Comanda>();
-            nuevasComandas =  value.ListaComandas.Where(p => p.Id == 0).ToList();
-            foreach(Comanda c in nuevasComandas)
-            { 
-                pedidoExistente.ListaComandas.Add(c.ShallowCopy());
-                context.Entry(pedidoExistente.ListaComandas[pedidoExistente.ListaComandas.Count - 1]).State = EntityState.Added;
                 
+                return Ok();
+            }catch(Exception ex)
+            {
+                return BadRequest(ex);
             }
-  
-            context.Entry(value).State = EntityState.Modified;
-            
-
-            context.SaveChanges();
-            return Ok();
 
         }
 
