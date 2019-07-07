@@ -38,6 +38,18 @@ namespace restoAPI.Controllers
             }
             return value;
         }
+        
+        //[HttpGet("byPedido/{idPedido}")]
+        //public async Task<ActionResult<List<Comanda>>> GetByPedido(Int16 idPedido)
+        //{
+        //    var value = await context.Comandas.Include("Detalles.Producto").Where(x => x.Pedido.Id == idPedido).ToListAsync();
+        //    if (value == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    return value;
+        //}
+
 
         [HttpPost]
         public ActionResult Post([FromBody] Comanda value)

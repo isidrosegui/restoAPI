@@ -42,10 +42,14 @@ namespace restoAPI.Controllers
         [HttpPost]
         public ActionResult Post([FromBody] Mesa value)
         {
+            value.EstaAbierta = false;
+            value.FechaAlta = DateTime.Now;
             context.Mesas.Add(value);
             context.SaveChanges();
             return new CreatedAtRouteResult("ObtenerMesaById", new { id = value.Id }, value);
         }
+
+
 
         [HttpPut("{id}")]
         public ActionResult Put(Int16 id, [FromBody] Mesa value)
@@ -55,6 +59,25 @@ namespace restoAPI.Controllers
                 return BadRequest();
             }
             context.Entry(value).State = EntityState.Modified;
+            context.SaveChanges();
+            return Ok();
+
+        }
+
+        [HttpPut("/abrir/{id}")]
+        public ActionResult PutAbrir(Int16 id, [FromBody] Mesa value)
+        {
+            if (id != value.Id)
+            {
+                return BadRequest();
+            }
+            context.Entry(value).State = EntityState.Modified;
+            var mesa = context.Mesas.First(x => x.Id == value.Id);
+            DetalleMesa detalleMesa = new DetalleMesa();
+            detalleMesa.FechaApertura = DateTime.Now;
+            detalleMesa.HoraApertura = DateTime.Now.TimeOfDay;
+            detalleMesa.Mesa = mesa;
+            context.DetallesMesa.Add(detalleMesa);
             context.SaveChanges();
             return Ok();
 

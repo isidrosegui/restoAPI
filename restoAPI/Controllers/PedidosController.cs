@@ -29,11 +29,29 @@ namespace restoAPI.Controllers
         }
 
         [HttpGet("filtrado")]
-        public async Task<ActionResult<IEnumerable<Pedido>>> Get([FromQuery]int idEstado)
+        public async Task<ActionResult<IEnumerable<Pedido>>> Get([FromQuery]string idEstado1, [FromQuery]string idEstado2, [FromQuery] string idPuntoExpendio)
         {
             //TODO: Luego vamos a ver como lo hacemos de forma asincronica
-            return await context.Pedidos.Include(x=>x.PuntoExpendio).Include(x=>x.Direccion).Include(x=>x.Cliente).Include(x=>x.ListaComandas).Include(x=>x.Cobros).Include(x=>x.EstadoPedido).Where(x=>x.EstadoPedido.Id==idEstado).ToListAsync();
-
+            var lista = await context.Pedidos.Include(x=>x.PuntoExpendio).Include(x=>x.Direccion).
+                Include(x=>x.Cliente).Include(x=>x.ListaComandas).Include(x=>x.Cobros).Include(x=>x.EstadoPedido).
+                    Where(x=> ((string.IsNullOrEmpty(idEstado1) || x.EstadoPedido.Id==Convert.ToInt32(idEstado1)) ||
+                        (string.IsNullOrEmpty(idEstado2) || x.EstadoPedido.Id == Convert.ToInt32(idEstado2))) &&
+                            (string.IsNullOrEmpty(idPuntoExpendio) || x.PuntoExpendio.Id == Convert.ToInt32(idPuntoExpendio))).ToListAsync();
+            string comandas = "";
+            foreach(Pedido p in lista)
+            {
+                foreach (Comanda c in p.ListaComandas)
+                {
+                    comandas = comandas + c.Id + ",";
+                }
+                comandas = comandas.Substring(0, comandas.Length - 1);
+                var detalles = context.DetallesPedido.FromSql("select * from DetallesPedido where ComandaId in (" + comandas + ")").ToList();
+                p.DetallesPedido = new List<DetallePedido>();
+                p.DetallesPedido.AddRange(detalles);
+            }
+            
+            
+            return lista;
         }
 
         [HttpGet("modificables")]
@@ -69,7 +87,7 @@ namespace restoAPI.Controllers
         [HttpGet("{id}", Name = "ObtenerPedidoById")]
         public ActionResult<Pedido> Get(Int16 id)
         {
-            var value = context.Pedidos.Include(x=> x.ListaComandas).FirstOrDefault(x => x.Id == id);
+            var value = context.Pedidos.FirstOrDefault(x => x.Id == id);
             if (value == null)
             {
                 return NotFound();
@@ -78,15 +96,19 @@ namespace restoAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] Pedido value)
+        public async Task<ActionResult<Pedido>> Post([FromBody] Pedido value)
         {
             try
             {
                 Pedido p = new Pedido();
                 context.Entry(p).CurrentValues.SetValues(value);
-                p.NroPedido = Convert.ToInt16((context.Pedidos.Where(x => x.FechaAlta == DateTime.Now.Date).Count()) + 1);
-                p.Direccion = value.Direccion;
-                value.Cliente.Direcciones = null;
+                p.NroPedido = Convert.ToInt16((context.Pedidos.Where(x => x.FechaAlta.Value.Date.Day == DateTime.Now.Date.Day).Count()) + 1);
+                if (value.Cliente != null)
+                {
+                    p.Direccion = value.Direccion;
+                    value.Cliente.Direcciones = null;
+                }
+               
                 p.EstadoPedido = await context.EstadosPedido.FirstAsync(x => x.Id == 1);
                 p.Cliente = value.Cliente;
                 p.PuntoExpendio = value.PuntoExpendio;
@@ -96,7 +118,7 @@ namespace restoAPI.Controllers
                 {
                     Comanda co = new Comanda();
                     context.Entry(co).CurrentValues.SetValues(c);
-                    co.NroComanda = Convert.ToInt16((context.Comandas.Where(x => x.FechaComanda == DateTime.Now.Date).Count()) + 1);
+                    co.NroComanda = Convert.ToInt16((context.Comandas.Where(x => x.FechaComanda.Day == DateTime.Now.Date.Day).Count()) + 1);
                     co.Detalles = new List<DetallePedido>();
                     foreach (DetallePedido d in c.Detalles)
                     {
@@ -111,12 +133,15 @@ namespace restoAPI.Controllers
                     p.ListaComandas.Add(co);
                 }
                 await context.Pedidos.AddAsync(p);
-                context.Entry(p.Direccion).State = EntityState.Detached;
-                context.Entry(p.Direccion.Barrio).State = EntityState.Detached;
-                context.Entry(p.Direccion.TipoDireccion).State = EntityState.Detached;
-                context.Entry(p.Cliente).State = EntityState.Detached;
-                context.Entry(p.Cliente.TipoCliente).State = EntityState.Detached;
-                context.Entry(p.Cliente.TipoTelefono).State = EntityState.Detached;
+                if (p.Direccion != null)
+                {
+                    context.Entry(p.Direccion).State = EntityState.Detached;
+                    context.Entry(p.Direccion.Barrio).State = EntityState.Detached;
+                    context.Entry(p.Direccion.TipoDireccion).State = EntityState.Detached;
+                    context.Entry(p.Cliente).State = EntityState.Detached;
+                    context.Entry(p.Cliente.TipoCliente).State = EntityState.Detached;
+                    context.Entry(p.Cliente.TipoTelefono).State = EntityState.Detached;
+                }
                 context.Entry(p.PuntoExpendio).State = EntityState.Detached;
 
                 for (int j = 0; j < p.ListaComandas.Count; j++)
@@ -134,7 +159,10 @@ namespace restoAPI.Controllers
                 }
                     
                 context.SaveChanges();
-                return new CreatedAtRouteResult("ObtenerPedidoById", new { id = value.Id }, value);
+                
+                var created = new CreatedAtRouteResult("ObtenerPedidoById", new { id = p.Id }, p);
+
+                return created;
             }catch(Exception ex)
             {
                 return BadRequest(ex);

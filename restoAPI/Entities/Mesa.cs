@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,10 +10,8 @@ namespace restoAPI.Entities
     public class Mesa
     {
         public Int32 Id { get; set; }
-        public String Descripcion { get; set; }
-        public DetalleMesa DetalleAbiertoMesa { get; set; }
-        public List<DetalleMesa> DetallesMesaHisto { get; set; }
-        public Pedido PedidoAbierto { get; set; }
+        public String Descripcion { get; set; } 
+        public Int32 IdDetalleAbierto { get; set; }
         public Boolean EstaAbierta { get; set; }
         public DateTime FechaAlta { get; set; }
         public DateTime? FechaBaja { get; set; }

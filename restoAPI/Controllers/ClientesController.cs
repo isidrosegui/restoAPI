@@ -34,9 +34,9 @@ namespace restoAPI.Controllers
                 await context.Clientes.Include("Direcciones.Barrio").Include("Direcciones.TipoDireccion").
                     Include(y => y.TipoCliente).
                         Include(y => y.TipoTelefono).
-                        Where(x => (string.IsNullOrEmpty(telefono) || x.Telefono == telefono) &&
-                    (string.IsNullOrEmpty(nombre) || x.Nombre.ToLower().StartsWith(nombre.ToLower())) &&
-                        (string.IsNullOrEmpty(apellido) || x.Apellido.ToLower().StartsWith(apellido.ToLower()))).ToListAsync();
+                            Where(x => (string.IsNullOrEmpty(telefono) || x.Telefono == telefono) &&
+                                (string.IsNullOrEmpty(nombre) || x.Nombre.ToLower().StartsWith(nombre.ToLower())) &&
+                                    (string.IsNullOrEmpty(apellido) || x.Apellido.ToLower().StartsWith(apellido.ToLower()))).ToListAsync();
             return accion;
         }
 

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using restoAPI.Context;
 
 namespace restoAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190707192852_ArreglosMesayDetallesMesa")]
+    partial class ArreglosMesayDetallesMesa
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -214,7 +216,7 @@ namespace restoAPI.Migrations
 
                     b.Property<TimeSpan?>("HoraBaja");
 
-                    b.Property<TimeSpan?>("HoraCierre");
+                    b.Property<TimeSpan>("HoraCierre");
 
                     b.Property<int?>("MesaId");
 
