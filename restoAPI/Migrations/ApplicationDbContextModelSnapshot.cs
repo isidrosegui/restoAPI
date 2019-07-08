@@ -202,7 +202,7 @@ namespace restoAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("CantidadComensales");
+                    b.Property<short>("CantidadComensales");
 
                     b.Property<DateTime?>("FechaApertura");
 

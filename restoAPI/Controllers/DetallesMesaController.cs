@@ -11,6 +11,8 @@ using restoAPI.Entities;
 
 namespace restoAPI.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class DetallesMesaController : Controller
     {
         private readonly ApplicationDbContext context;
@@ -29,7 +31,7 @@ namespace restoAPI.Controllers
         [HttpGet("{id}", Name = "ObtenerDetalleMesaById")]
         public ActionResult<DetalleMesa> Get(Int16 id)
         {
-            var value = context.DetallesMesa.FirstOrDefault(x => x.Id == id);
+            var value = context.DetallesMesa.Include(x=>x.Pedido).Include("Pedido.ListaComandas").FirstOrDefault(x => x.Id == id);
             if (value == null)
             {
                 return NotFound();

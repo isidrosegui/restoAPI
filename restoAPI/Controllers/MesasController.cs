@@ -64,8 +64,8 @@ namespace restoAPI.Controllers
 
         }
 
-        [HttpPut("/abrir/{id}")]
-        public ActionResult PutAbrir(Int16 id, [FromBody] Mesa value)
+        [HttpPut("abrir")]
+        public ActionResult PutAbrir([FromQuery]Int16 id,[FromQuery] Int16 cantComensales, [FromBody] Mesa value)
         {
             if (id != value.Id)
             {
@@ -77,7 +77,36 @@ namespace restoAPI.Controllers
             detalleMesa.FechaApertura = DateTime.Now;
             detalleMesa.HoraApertura = DateTime.Now.TimeOfDay;
             detalleMesa.Mesa = mesa;
+            detalleMesa.CantidadComensales = cantComensales;
             context.DetallesMesa.Add(detalleMesa);
+            context.SaveChanges();
+            mesa.IdDetalleAbierto = detalleMesa.Id;
+            context.Entry(mesa).State = EntityState.Modified;
+            context.SaveChanges();
+
+            return Ok();
+
+        }
+
+        [HttpPut("cerrar")]
+        public async Task<ActionResult> PutCerrar([FromQuery]Int16 id, [FromQuery] Int16 idDetalle, [FromBody] Mesa value)
+        {
+            if (id != value.Id)
+            {
+                return BadRequest();
+            }
+            context.Entry(value).State = EntityState.Modified;
+            var mesa = context.Mesas.First(x => x.Id == value.Id);
+            DetalleMesa detalleMesa = await context.DetallesMesa.Include(x=>x.Pedido).FirstOrDefaultAsync(x=> x.Id==idDetalle);
+            detalleMesa.FechaCierre = DateTime.Now;
+            detalleMesa.HoraCierre = DateTime.Now.TimeOfDay;
+            if (detalleMesa.Pedido != null)
+            {
+                detalleMesa.Pedido.EstadoPedido = await context.EstadosPedido.FirstOrDefaultAsync(x => x.Id == 10);
+                context.Entry(detalleMesa.Pedido).State = EntityState.Modified;
+
+            }
+            
             context.SaveChanges();
             return Ok();
 

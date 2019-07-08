@@ -13,7 +13,7 @@ namespace restoAPI.Entities
         public TimeSpan HoraApertura { get; set; }
         public DateTime? FechaCierre { get; set; }
         public TimeSpan? HoraCierre { get; set; }
-        public String CantidadComensales { get; set; }
+        public Int16 CantidadComensales { get; set; }
         public Mesa Mesa { get; set; }
         public DateTime? FechaBaja { get; set; }
         public TimeSpan? HoraBaja { get; set; }

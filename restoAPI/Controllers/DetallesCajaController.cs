@@ -11,6 +11,8 @@ using restoAPI.Entities;
 
 namespace restoAPI.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class DetallesCajaController : Controller
     {
         private readonly ApplicationDbContext context;
