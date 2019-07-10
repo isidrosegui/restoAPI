@@ -25,7 +25,15 @@ namespace restoAPI.Controllers
         public ActionResult<IEnumerable<DetalleMesa>> Get()
         {
             //TODO: Luego vamos a ver como lo hacemos de forma asincronica
-            return context.DetallesMesa.ToList();
+           List<DetalleMesa> dets = context.DetallesMesa.Include(x=>x.Pedido).ToList();
+            foreach(DetalleMesa d in dets )
+            {
+                foreach(Comanda c in d.Pedido.ListaComandas)
+                {
+
+                }
+            }
+            return dets;
         }
 
         [HttpGet("{id}", Name = "ObtenerDetalleMesaById")]
@@ -50,16 +58,39 @@ namespace restoAPI.Controllers
         [HttpPut("{id}")]
         public ActionResult Put(Int16 id, [FromBody] DetalleMesa value)
         {
+            DetalleMesa detalle = new DetalleMesa();
             if (id != value.Id)
             {
                 return BadRequest();
             }
-            context.Entry(value).State = EntityState.Modified;
+            detalle = context.DetallesMesa.FirstOrDefault(x => x.Id == value.Id);
+            context.Entry(detalle).CurrentValues.SetValues(value);
+            
+            if (value.Pedido != null)
+            {
+                int noOfRowUpdated = context.Database.ExecuteSqlCommand("Update DetallesMesa set PedidoId = " + value.Pedido.Id);
+            }
+
+            context.Entry(detalle).State = EntityState.Modified;
+
             context.SaveChanges();
             return Ok();
 
         }
 
+        [HttpPut("agregarPedido/{id}")]
+        public ActionResult<DetalleMesa> PutAgregarPedido(Int16 id, [FromBody] DetalleMesa value)
+        {
+
+
+            if (value.Pedido != null)
+            {
+                int noOfRowUpdated = context.Database.ExecuteSqlCommand("Update DetallesMesa set PedidoId = " + value.Pedido.Id + "where Id ="+value.Id);
+            }
+            
+             return Ok();
+
+        }
         [HttpDelete("{id}")]
         public ActionResult<DetalleMesa> Delete(Int16 id)
         {

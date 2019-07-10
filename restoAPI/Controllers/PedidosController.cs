@@ -142,7 +142,8 @@ namespace restoAPI.Controllers
                     context.Entry(p.Cliente.TipoCliente).State = EntityState.Detached;
                     context.Entry(p.Cliente.TipoTelefono).State = EntityState.Detached;
                 }
-                context.Entry(p.PuntoExpendio).State = EntityState.Detached;
+                if(p.PuntoExpendio!=null)
+                    context.Entry(p.PuntoExpendio).State = EntityState.Detached;
 
                 for (int j = 0; j < p.ListaComandas.Count; j++)
                 {
