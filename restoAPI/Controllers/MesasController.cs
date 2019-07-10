@@ -28,6 +28,8 @@ namespace restoAPI.Controllers
             return context.Mesas.ToList();
         }
 
+
+
         [HttpGet("{id}", Name = "ObtenerMesaById")]
         public ActionResult<Mesa> Get(Int16 id)
         {
@@ -84,6 +86,7 @@ namespace restoAPI.Controllers
             mesa.IdDetalleAbierto = detalleMesa.Id;
             context.Entry(mesa).State = EntityState.Modified;
             context.SaveChanges();
+
 
             return Ok();
 

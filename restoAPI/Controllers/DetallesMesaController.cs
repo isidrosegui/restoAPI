@@ -28,10 +28,7 @@ namespace restoAPI.Controllers
            List<DetalleMesa> dets = context.DetallesMesa.Include(x=>x.Pedido).ToList();
             foreach(DetalleMesa d in dets )
             {
-                foreach(Comanda c in d.Pedido.ListaComandas)
-                {
-
-                }
+                d.Pedido.DetallesPedido = context.DetallesPedido.Where(x => x.IdPedido == d.Pedido.Id).ToList();
             }
             return dets;
         }
