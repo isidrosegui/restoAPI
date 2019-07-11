@@ -34,7 +34,7 @@ namespace restoAPI.Controllers
         [HttpGet("{id}", Name = "ObtenerMesaById")]
         public ActionResult<Mesa> Get(Int16 id)
         {
-            var value = context.Mesas.FirstOrDefault(x => x.Id == id);
+            var value = context.Mesas.Include(w => w.DetalleAbierto).ThenInclude(x => x.Pedido).ThenInclude(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).Where(s=>s.Id==id).First();
             if (value == null)
             {
                 return NotFound();
@@ -82,11 +82,18 @@ namespace restoAPI.Controllers
             detalleMesa.HoraApertura = DateTime.Now.TimeOfDay;
             
             detalleMesa.CantidadComensales = cantComensales;
+            detalleMesa.IdMesa = value.Id;
+
             context.DetallesMesa.Add(detalleMesa);
             context.SaveChanges();
             mesa.DetalleAbierto = detalleMesa;
             context.Entry(mesa).State = EntityState.Modified;
             context.SaveChanges();
+            Pedido pedido = new Pedido();
+            pedido.FechaAlta = DateTime.Now;
+            pedido.HoraAlta= DateTime.Now.TimeOfDay;
+            pedido.NroPedido = Convert.ToInt16((context.Pedidos.Where(x => x.FechaAlta.Value.Date.Day == DateTime.Now.Date.Day).Count()) + 1);
+
 
             return Ok();
 
