@@ -24,12 +24,16 @@ namespace restoAPI.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<DetalleMesa>> Get()
         {
-            //TODO: Luego vamos a ver como lo hacemos de forma asincronica
-           List<DetalleMesa> dets = context.DetallesMesa.Include(x=>x.Pedido).ToList();
-            foreach(DetalleMesa d in dets )
-            {
-                d.Pedido.DetallesPedido = context.DetallesPedido.Where(x => x.IdPedido == d.Pedido.Id).ToList();
-            }
+                List<DetalleMesa> dets = context.DetallesMesa.
+                      Include(x => x.Pedido).ThenInclude(p=>p.ListaComandas).ThenInclude(d=>d.Detalles).ThenInclude(f=>f.Producto).ToList();
+                return dets;
+        }
+
+        [HttpGet("DetalleDeMesaAbierto")]
+        public ActionResult<IEnumerable<DetalleMesa>> GetDetAbiertoOfMesa()
+        {
+            List<DetalleMesa> dets = context.DetallesMesa.Include(x => x.Pedido).ThenInclude(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ToList();
+
             return dets;
         }
 

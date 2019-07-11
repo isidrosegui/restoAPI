@@ -25,10 +25,11 @@ namespace restoAPI.Controllers
         public ActionResult<IEnumerable<Mesa>> Get()
         {
             //TODO: Luego vamos a ver como lo hacemos de forma asincronica
-            return context.Mesas.ToList();
+            List<Mesa> mesas = context.Mesas.Include(w=>w.DetalleAbierto).ThenInclude(x => x.Pedido).ThenInclude(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ToList();
+
+
+            return mesas;
         }
-
-
 
         [HttpGet("{id}", Name = "ObtenerMesaById")]
         public ActionResult<Mesa> Get(Int16 id)
@@ -79,14 +80,13 @@ namespace restoAPI.Controllers
             DetalleMesa detalleMesa = new DetalleMesa();
             detalleMesa.FechaApertura = DateTime.Now;
             detalleMesa.HoraApertura = DateTime.Now.TimeOfDay;
-            detalleMesa.Mesa = mesa;
+            
             detalleMesa.CantidadComensales = cantComensales;
             context.DetallesMesa.Add(detalleMesa);
             context.SaveChanges();
-            mesa.IdDetalleAbierto = detalleMesa.Id;
+            mesa.DetalleAbierto = detalleMesa;
             context.Entry(mesa).State = EntityState.Modified;
             context.SaveChanges();
-
 
             return Ok();
 

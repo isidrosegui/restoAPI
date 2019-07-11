@@ -17,7 +17,7 @@ namespace restoAPI.Entities
         public String Observaciones { get; set; }
         public DateTime? FechaBaja { get; set; }
         public TimeSpan? HoraBaja { get; set; }
-
+        public Int32 PedidoId { get; set; }
         public Comanda ShallowCopy()
         {
             return (Comanda)this.MemberwiseClone();

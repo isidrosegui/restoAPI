@@ -11,7 +11,7 @@ namespace restoAPI.Entities
     {
         public Int32 Id { get; set; }
         public String Descripcion { get; set; } 
-        public Int32 IdDetalleAbierto { get; set; }
+        public DetalleMesa DetalleAbierto { get; set; }
         public Boolean EstaAbierta { get; set; }
         public DateTime FechaAlta { get; set; }
         public DateTime? FechaBaja { get; set; }
