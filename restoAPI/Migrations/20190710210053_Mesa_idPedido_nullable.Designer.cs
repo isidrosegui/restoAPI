@@ -3,19 +3,21 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using restoAPI.Context;
 
 namespace restoAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190710210053_Mesa_idPedido_nullable")]
+    partial class Mesa_idPedido_nullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
+                .HasAnnotation("ProductVersion", "2.2.4-servicing-10062")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -127,7 +129,7 @@ namespace restoAPI.Migrations
 
                     b.Property<string>("Observaciones");
 
-                    b.Property<int>("PedidoId");
+                    b.Property<int?>("PedidoId");
 
                     b.HasKey("Id");
 
@@ -216,11 +218,13 @@ namespace restoAPI.Migrations
 
                     b.Property<TimeSpan?>("HoraCierre");
 
-                    b.Property<int>("IdMesa");
+                    b.Property<int?>("MesaId");
 
                     b.Property<int?>("PedidoId");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("MesaId");
 
                     b.HasIndex("PedidoId");
 
@@ -350,17 +354,15 @@ namespace restoAPI.Migrations
 
                     b.Property<string>("Descripcion");
 
-                    b.Property<int?>("DetalleAbiertoId");
-
                     b.Property<bool>("EstaAbierta");
 
                     b.Property<DateTime>("FechaAlta");
 
                     b.Property<DateTime?>("FechaBaja");
 
-                    b.HasKey("Id");
+                    b.Property<int?>("IdDetalleAbierto");
 
-                    b.HasIndex("DetalleAbiertoId");
+                    b.HasKey("Id");
 
                     b.ToTable("Mesas");
                 });
@@ -433,8 +435,6 @@ namespace restoAPI.Migrations
                     b.Property<TimeSpan?>("HoraBaja");
 
                     b.Property<TimeSpan>("HoraEntrega");
-
-                    b.Property<int?>("IdDetalleMesa");
 
                     b.Property<decimal>("MontoTotal");
 
@@ -632,8 +632,7 @@ namespace restoAPI.Migrations
                 {
                     b.HasOne("restoAPI.Entities.Pedido")
                         .WithMany("ListaComandas")
-                        .HasForeignKey("PedidoId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("PedidoId");
                 });
 
             modelBuilder.Entity("restoAPI.Entities.Delivery", b =>
@@ -652,6 +651,10 @@ namespace restoAPI.Migrations
 
             modelBuilder.Entity("restoAPI.Entities.DetalleMesa", b =>
                 {
+                    b.HasOne("restoAPI.Entities.Mesa", "Mesa")
+                        .WithMany()
+                        .HasForeignKey("MesaId");
+
                     b.HasOne("restoAPI.Entities.Pedido", "Pedido")
                         .WithMany()
                         .HasForeignKey("PedidoId");
@@ -681,13 +684,6 @@ namespace restoAPI.Migrations
                     b.HasOne("restoAPI.Entities.TipoDireccion", "TipoDireccion")
                         .WithMany()
                         .HasForeignKey("TipoDireccionId");
-                });
-
-            modelBuilder.Entity("restoAPI.Entities.Mesa", b =>
-                {
-                    b.HasOne("restoAPI.Entities.DetalleMesa", "DetalleAbierto")
-                        .WithMany()
-                        .HasForeignKey("DetalleAbiertoId");
                 });
 
             modelBuilder.Entity("restoAPI.Entities.Pago", b =>

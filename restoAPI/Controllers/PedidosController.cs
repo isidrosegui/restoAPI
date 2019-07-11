@@ -176,14 +176,29 @@ namespace restoAPI.Controllers
             try
             {
                  var pedidoExistente = await context.Pedidos.Include(x => x.ListaComandas).FirstOrDefaultAsync(x => x.Id == value.Id);
+                if (pedidoExistente.ListaComandas == null)
+                {
+                    pedidoExistente.ListaComandas = new List<Comanda>();
+                }
                 if (id != value.Id)
                  {
                      return BadRequest();
                  }
-                 pedidoExistente.ListaComandas.AddRange(value.ListaComandas.Where(x => x.Id == 0));
-                 
+
+                //pedidoExistente.ListaComandas.AddRange(value.ListaComandas.Where(x => x.Id == 0));
+                //creo los detalles para la comanda nueva
+                foreach (Comanda c in value.ListaComandas.Where(x => x.Id == 0))
+                {
+                    c.PedidoId = value.Id;
+                    c.NroComanda = Convert.ToInt16((context.Comandas.Where(x => x.FechaComanda.Date.Day == DateTime.Now.Date.Day).Count()) + 1);
+                    context.Comandas.Add(c);
+                    //ERROR TIPO DE PRODUCTO DETACHED.
+                    context.SaveChanges();
+                    
+                }
                  foreach (Comanda c in pedidoExistente.ListaComandas.Where(x=>x.Id==0))
                  {
+
                     c.FechaComanda = DateTime.Now;
                     c.HoraComanda = DateTime.Now.TimeOfDay;
                     

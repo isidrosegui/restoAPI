@@ -26,8 +26,6 @@ namespace restoAPI.Controllers
         {
             //TODO: Luego vamos a ver como lo hacemos de forma asincronica
             List<Mesa> mesas = context.Mesas.Include(w=>w.DetalleAbierto).ThenInclude(x => x.Pedido).ThenInclude(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ToList();
-
-
             return mesas;
         }
 
@@ -75,24 +73,30 @@ namespace restoAPI.Controllers
             {
                 return BadRequest();
             }
+            //asigno los valoras de la mesa
             context.Entry(value).State = EntityState.Modified;
             var mesa = context.Mesas.First(x => x.Id == value.Id);
+            //creo el detall de la mesa.
             DetalleMesa detalleMesa = new DetalleMesa();
             detalleMesa.FechaApertura = DateTime.Now;
             detalleMesa.HoraApertura = DateTime.Now.TimeOfDay;
-            
             detalleMesa.CantidadComensales = cantComensales;
             detalleMesa.IdMesa = value.Id;
-
+            //creo el pedido
+            Pedido pedido = new Pedido();
+            pedido.FechaAlta = DateTime.Now;
+            pedido.HoraAlta = DateTime.Now.TimeOfDay;
+            pedido.NroPedido = Convert.ToInt16((context.Pedidos.Where(x => x.FechaAlta.Value.Date.Day == DateTime.Now.Date.Day).Count()) + 1);
+            pedido.EstadoPedido = context.EstadosPedido.FirstOrDefaultAsync(x => x.Id == 11).Result;
+            //lo agrego al context;
+            context.Pedidos.Add(pedido);
+            //agrego el pedido a la mesa
+            detalleMesa.Pedido= pedido;
             context.DetallesMesa.Add(detalleMesa);
-            context.SaveChanges();
+            //context.SaveChanges();
             mesa.DetalleAbierto = detalleMesa;
             context.Entry(mesa).State = EntityState.Modified;
             context.SaveChanges();
-            Pedido pedido = new Pedido();
-            pedido.FechaAlta = DateTime.Now;
-            pedido.HoraAlta= DateTime.Now.TimeOfDay;
-            pedido.NroPedido = Convert.ToInt16((context.Pedidos.Where(x => x.FechaAlta.Value.Date.Day == DateTime.Now.Date.Day).Count()) + 1);
 
 
             return Ok();
