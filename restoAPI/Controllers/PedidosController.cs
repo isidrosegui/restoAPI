@@ -185,37 +185,35 @@ namespace restoAPI.Controllers
                      return BadRequest();
                  }
 
-                //pedidoExistente.ListaComandas.AddRange(value.ListaComandas.Where(x => x.Id == 0));
-                //creo los detalles para la comanda nueva
+                
+                //Hago las comandas nuevas
                 foreach (Comanda c in value.ListaComandas.Where(x => x.Id == 0))
                 {
-                    c.PedidoId = value.Id;
-                    c.NroComanda = Convert.ToInt16((context.Comandas.Where(x => x.FechaComanda.Date.Day == DateTime.Now.Date.Day).Count()) + 1);
-                    context.Comandas.Add(c);
+                    Comanda com = new Comanda();
+                    com.PedidoId = value.Id;
+                    com.NroComanda = Convert.ToInt16((context.Comandas.Where(x => x.FechaComanda.Date.Day == DateTime.Now.Date.Day).Count()) + 1);
+                    com.FechaComanda = DateTime.Now.Date;
+                    com.Detalles = new List<DetallePedido>();
+                    com.Observaciones = c.Observaciones;
+                    //creo los detalles para la comanda nueva
+                    foreach (DetallePedido d in c.Detalles)
+                    {
+                        DetallePedido dn = new DetallePedido();
+                        dn.Cantidad = d.Cantidad;
+                        dn.Descuento = d.Descuento;
+                        dn.FechaBaja = d.FechaBaja;
+                        dn.HoraBaja = d.HoraBaja;
+                        dn.Producto = await context.Productos.Where(p => p.Id == d.Producto.Id).FirstAsync();
+                        dn.Subtotal = d.Subtotal;
+                        dn.IdPedido = value.Id;
+                        com.Detalles.Add(dn);
+                    }
+                    context.Comandas.Add(com);
                     //ERROR TIPO DE PRODUCTO DETACHED.
                     context.SaveChanges();
                     
                 }
-                 foreach (Comanda c in pedidoExistente.ListaComandas.Where(x=>x.Id==0))
-                 {
-
-                    c.FechaComanda = DateTime.Now;
-                    c.HoraComanda = DateTime.Now.TimeOfDay;
-                    
-                    for (int i = 0; i < c.Detalles.Count; i++)
-                    {
-                        c.Detalles[i].Producto.HistoPrecios = null;
-                        context.Entry(c.Detalles[i].Producto).State = EntityState.Detached;
-                        context.Entry(c.Detalles[i].Producto.PrecioActual).State = EntityState.Detached;
-                        context.Entry(c.Detalles[i].Producto.TipoDeProducto).State = EntityState.Detached;
-                        //context.Entry(c.Detalles[i].Producto.).State = EntityState.Detached;
-
-                        await context.Comandas.AddAsync(c);
-                    }
-                    context.SaveChanges();
-                
-
-                }
+               
                 
                 return Ok();
             }catch(Exception ex)

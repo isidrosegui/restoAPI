@@ -26,6 +26,10 @@ namespace restoAPI.Controllers
         {
             //TODO: Luego vamos a ver como lo hacemos de forma asincronica
             List<Mesa> mesas = context.Mesas.Include(w=>w.DetalleAbierto).ThenInclude(x => x.Pedido).ThenInclude(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ToList();
+            foreach (Mesa m in mesas.Where(x=>x.DetalleAbierto != null).ToList())  {
+                m.DetalleAbierto.Pedido.DetallesPedido  = context.DetallesPedido.FromSql("select * from DetallesPedido where IdPedido =" + m.DetalleAbierto.Pedido.Id ).ToList();
+            }
+
             return mesas;
         }
 
@@ -88,12 +92,16 @@ namespace restoAPI.Controllers
             pedido.HoraAlta = DateTime.Now.TimeOfDay;
             pedido.NroPedido = Convert.ToInt16((context.Pedidos.Where(x => x.FechaAlta.Value.Date.Day == DateTime.Now.Date.Day).Count()) + 1);
             pedido.EstadoPedido = context.EstadosPedido.FirstOrDefaultAsync(x => x.Id == 11).Result;
+            
             //lo agrego al context;
             context.Pedidos.Add(pedido);
+            context.SaveChanges();
             //agrego el pedido a la mesa
             detalleMesa.Pedido= pedido;
             context.DetallesMesa.Add(detalleMesa);
-            //context.SaveChanges();
+            context.SaveChanges();
+            pedido.IdDetalleMesa = detalleMesa.Id;
+            context.SaveChanges();
             mesa.DetalleAbierto = detalleMesa;
             context.Entry(mesa).State = EntityState.Modified;
             context.SaveChanges();
