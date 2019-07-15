@@ -86,7 +86,8 @@ namespace restoAPI.Controllers
                     ce.Detalles.Add(dn);
                 }
 
-                //context.Entry(ce).State = EntityState.Modified;
+                context.Entry(ce).State = EntityState.Modified;
+
                 context.SaveChanges();
                 return Ok();
             }

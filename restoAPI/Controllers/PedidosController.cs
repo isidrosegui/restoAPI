@@ -49,8 +49,8 @@ namespace restoAPI.Controllers
                 p.DetallesPedido = new List<DetallePedido>();
                 p.DetallesPedido.AddRange(detalles);
             }
-            
-            
+            context.DetallesPedido.FromSql("select * from DetallesPedido where IdPedido = (" + comandas + ")").ToList();
+
             return lista;
         }
 
@@ -175,7 +175,7 @@ namespace restoAPI.Controllers
         {
             try
             {
-                 var pedidoExistente = await context.Pedidos.Include(x => x.ListaComandas).FirstOrDefaultAsync(x => x.Id == value.Id);
+                 var pedidoExistente = await context.Pedidos.Include(x => x.ListaComandas).ThenInclude(z=>z.Detalles).ThenInclude(p=>p.Producto).FirstOrDefaultAsync(x => x.Id == value.Id);
                 if (pedidoExistente.ListaComandas == null)
                 {
                     pedidoExistente.ListaComandas = new List<Comanda>();
@@ -213,8 +213,10 @@ namespace restoAPI.Controllers
                     context.SaveChanges();
                     
                 }
+
+                //modifico las comandas existentes
                
-                
+                context.SaveChanges();
                 return Ok();
             }catch(Exception ex)
             {

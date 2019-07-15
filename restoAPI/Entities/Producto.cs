@@ -15,7 +15,7 @@ namespace restoAPI.Entities
         public String Nombre { get; set; }
         public String Descripcion { get; set; }
         public List<Precio> HistoPrecios { get; set; }
-        [NotMapped]
+        [ForeignKey("Id")]
         public Precio PrecioActual { get; set; }
         public DateTime FechaAlta { get; set;}
         public DateTime? FechaBaja { get; set; }

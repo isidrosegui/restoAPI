@@ -25,8 +25,12 @@ namespace restoAPI.Controllers
         public ActionResult<IEnumerable<Mesa>> Get()
         {
             //TODO: Luego vamos a ver como lo hacemos de forma asincronica
-            List<Mesa> mesas = context.Mesas.Include(w=>w.DetalleAbierto).ThenInclude(x => x.Pedido).ThenInclude(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ToList();
-            foreach (Mesa m in mesas.Where(x=>x.DetalleAbierto != null).ToList())  {
+            List<Mesa> mesas = context.Mesas
+                .Include(w=>w.DetalleAbierto).ThenInclude(x => x.Pedido).ThenInclude(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i=>i.PrecioActual)
+                    .Include(w => w.DetalleAbierto).ThenInclude(x => x.Pedido).ThenInclude(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i => i.TipoDeProducto).ToList();
+
+            foreach (Mesa m in mesas.Where(x=>x.DetalleAbierto != null).ToList())
+            {
                 m.DetalleAbierto.Pedido.DetallesPedido  = context.DetallesPedido.FromSql("select * from DetallesPedido where IdPedido =" + m.DetalleAbierto.Pedido.Id ).ToList();
             }
 
@@ -36,7 +40,8 @@ namespace restoAPI.Controllers
         [HttpGet("{id}", Name = "ObtenerMesaById")]
         public ActionResult<Mesa> Get(Int16 id)
         {
-            var value = context.Mesas.Include(w => w.DetalleAbierto).ThenInclude(x => x.Pedido).ThenInclude(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).Where(s=>s.Id==id).First();
+            var value = context.Mesas.Include(w => w.DetalleAbierto).ThenInclude(x => x.Pedido).ThenInclude(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i => i.PrecioActual)
+                    .Include(w => w.DetalleAbierto).ThenInclude(x => x.Pedido).ThenInclude(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i => i.TipoDeProducto).Where(s=>s.Id==id).First();
             if (value == null)
             {
                 return NotFound();

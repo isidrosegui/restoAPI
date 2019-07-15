@@ -25,14 +25,14 @@ namespace restoAPI.Controllers
         public ActionResult<IEnumerable<DetalleMesa>> Get()
         {
                 List<DetalleMesa> dets = context.DetallesMesa.
-                      Include(x => x.Pedido).ThenInclude(p=>p.ListaComandas).ThenInclude(d=>d.Detalles).ThenInclude(f=>f.Producto).ToList();
+                      Include(x => x.Pedido).ThenInclude(p=>p.ListaComandas.Where(l=>l.FechaBaja ==null)).ThenInclude(d=>d.Detalles.Where(r=>r.FechaBaja ==null)).ThenInclude(f=>f.Producto).ToList();
                 return dets;
         }
 
         [HttpGet("DetalleDeMesaAbierto")]
         public ActionResult<IEnumerable<DetalleMesa>> GetDetAbiertoOfMesa()
         {
-            List<DetalleMesa> dets = context.DetallesMesa.Include(x => x.Pedido).ThenInclude(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ToList();
+            List<DetalleMesa> dets = context.DetallesMesa.Include(x => x.Pedido).ThenInclude(p => p.ListaComandas.Where(l => l.FechaBaja==null)).ThenInclude(d => d.Detalles.Where(r => r.FechaBaja == null)).ThenInclude(f => f.Producto).ToList();
 
             return dets;
         }
