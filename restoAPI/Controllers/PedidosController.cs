@@ -127,6 +127,7 @@ namespace restoAPI.Controllers
                         context.Entry(de).CurrentValues.SetValues(d);
                         de.Producto = context.Productos.Include(h=>h.TipoDeProducto).FirstOrDefault(x => x.Id == d.Producto.Id);
                         co.Detalles.Add(de);
+                        
                        
                     }
 
@@ -162,6 +163,16 @@ namespace restoAPI.Controllers
                 context.SaveChanges();
                 
                 var created = new CreatedAtRouteResult("ObtenerPedidoById", new { id = p.Id }, p);
+                if (((Pedido)created.Value).ListaComandas[0].Detalles != null && ((Pedido)created.Value).ListaComandas[0].Detalles[0].IdPedido == 0)
+                {
+                    foreach (DetallePedido d in ((Pedido)created.Value).ListaComandas[0].Detalles)
+                    {
+                        d.IdPedido = ((Pedido)created.Value).Id;
+                        context.Entry(d).State = EntityState.Modified;
+
+                    }
+                }
+                context.SaveChanges();
 
                 return created;
             }catch(Exception ex)

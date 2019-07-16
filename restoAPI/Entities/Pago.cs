@@ -18,6 +18,7 @@ namespace restoAPI.Entities
         public TimeSpan HoraAlta { get; set; }
         public DateTime? FechaBaja { get; set; }
         public TimeSpan? HoraBaja { get; set; }
+        public String MotivoBaja { get; set; }
         /*falta usuario y Perfil*/
     }
 }
