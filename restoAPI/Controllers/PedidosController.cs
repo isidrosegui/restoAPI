@@ -125,7 +125,7 @@ namespace restoAPI.Controllers
                         d.Producto.HistoPrecios = null;
                         DetallePedido de = new DetallePedido();
                         context.Entry(de).CurrentValues.SetValues(d);
-                        de.Producto = d.Producto;
+                        de.Producto = context.Productos.Include(h=>h.TipoDeProducto).FirstOrDefault(x => x.Id == d.Producto.Id);
                         co.Detalles.Add(de);
                        
                     }
@@ -152,7 +152,7 @@ namespace restoAPI.Controllers
                     {
                         context.Entry(p.ListaComandas[j].Detalles[i].Producto).State = EntityState.Detached;
                         context.Entry(p.ListaComandas[j].Detalles[i].Producto.TipoDeProducto).State = EntityState.Detached;
-                        context.Entry(p.ListaComandas[j].Detalles[i].Producto.PrecioActual).State = EntityState.Detached;
+                       // context.Entry(p.ListaComandas[j].Detalles[i].Producto.PrecioActual).State = EntityState.Detached;
                         //context.Entry(p.ListaComandas[j].Detalles[i].Producto.HistoPrecios).State = EntityState.Detached;
 
 
