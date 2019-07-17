@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using restoAPI.Context;
 
 namespace restoAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190717211712_addMotivoBajaPago")]
+    partial class addMotivoBajaPago
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -486,9 +488,7 @@ namespace restoAPI.Migrations
 
             modelBuilder.Entity("restoAPI.Entities.Producto", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<int>("Id");
 
                     b.Property<string>("Descripcion");
 
@@ -498,13 +498,9 @@ namespace restoAPI.Migrations
 
                     b.Property<string>("Nombre");
 
-                    b.Property<int?>("PrecioActualId");
-
                     b.Property<int?>("TipoDeProductoId");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PrecioActualId");
 
                     b.HasIndex("TipoDeProductoId");
 
@@ -753,7 +749,8 @@ namespace restoAPI.Migrations
                 {
                     b.HasOne("restoAPI.Entities.Precio", "PrecioActual")
                         .WithMany()
-                        .HasForeignKey("PrecioActualId");
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("restoAPI.Entities.TipoProducto", "TipoDeProducto")
                         .WithMany()
