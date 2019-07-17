@@ -25,7 +25,8 @@ namespace restoAPI.Controllers
         public ActionResult<IEnumerable<Pedido>> Get()
         {
             //TODO: Luego vamos a ver como lo hacemos de forma asincronica
-            return context.Pedidos.ToList();
+            return context.Pedidos.Include(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i => i.PrecioActual)
+                    .Include(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i => i.TipoDeProducto).ToList();
         }
 
         [HttpGet("filtrado")]
@@ -87,7 +88,8 @@ namespace restoAPI.Controllers
         [HttpGet("{id}", Name = "ObtenerPedidoById")]
         public ActionResult<Pedido> Get(Int16 id)
         {
-            var value = context.Pedidos.FirstOrDefault(x => x.Id == id);
+            var value = context.Pedidos.Include(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i => i.PrecioActual)
+                    .Include(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i => i.TipoDeProducto).FirstOrDefault(x => x.Id == id);
             if (value == null)
             {
                 return NotFound();
