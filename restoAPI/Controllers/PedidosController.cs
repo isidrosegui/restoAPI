@@ -83,7 +83,33 @@ namespace restoAPI.Controllers
         }
 
 
+        [HttpGet("modificablesNoMesa")]
+        public async Task<ActionResult<IEnumerable<Pedido>>> GetModificablesNoMesa()
+        {
+            //TODO: Luego vamos a ver como lo hacemos de forma asincronica
+            List<int> ids = new List<int>();
 
+            List<Pedido> listaPedidos = await context.Pedidos.Include(x => x.PuntoExpendio).Include("Direccion.Barrio").Include("Direccion.TipoDireccion").Include(x => x.ListaComandas).
+                Include(x => x.Cliente).Include(x => x.Cobros).Include(x => x.EstadoPedido).Where(x => x.EstadoPedido.Id < 4 && x.IdDetalleMesa==null || x.IdDetalleMesa==0 ).ToListAsync();
+
+            foreach (Pedido p in listaPedidos)
+            {
+                p.DetallesPedido = new List<DetallePedido>();
+                for (int i = 0; i < p.ListaComandas.Count; i++)
+                {
+                    p.ListaComandas[i] = await context.Comandas.Include("Detalles.Producto").Include("Detalles.Producto.HistoPrecios").Where(x => x.Id == p.ListaComandas[i].Id).FirstOrDefaultAsync();
+                    foreach (DetallePedido d in p.ListaComandas[i].Detalles)
+                    {
+                        d.Producto.PrecioActual = d.Producto.HistoPrecios.FirstOrDefault(x => x.FechaBaja == null);
+
+                        p.DetallesPedido.Add(d);
+
+                    }
+                }
+            }
+
+            return listaPedidos;
+        }
 
         [HttpGet("{id}", Name = "ObtenerPedidoById")]
         public ActionResult<Pedido> Get(Int16 id)

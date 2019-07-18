@@ -49,6 +49,18 @@ namespace restoAPI.Controllers
             return value;
         }
 
+        [HttpGet("Abiertas")]
+        public ActionResult<Mesa> GetAbiertas()
+        {
+            var value = context.Mesas.Include(w => w.DetalleAbierto).ThenInclude(x => x.Pedido).ThenInclude(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i => i.PrecioActual)
+                    .Include(w => w.DetalleAbierto).ThenInclude(x => x.Pedido).ThenInclude(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i => i.TipoDeProducto).Where(s => s.EstaAbierta && s.DetalleAbierto.Pedido.ListaComandas!=null && s.DetalleAbierto.Pedido.ListaComandas.Count>0).First();
+            if (value == null)
+            {
+                return NotFound();
+            }
+            return value;
+        }
+
 
         [HttpPost]
         public ActionResult Post([FromBody] Mesa value)
