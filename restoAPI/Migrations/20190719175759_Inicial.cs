@@ -189,7 +189,7 @@ namespace restoAPI.Migrations
                     MontoSaldado = table.Column<decimal>(nullable: false),
                     EstadoId = table.Column<int>(nullable: true),
                     FechaBaja = table.Column<DateTime>(nullable: true),
-                    HoraBaja = table.Column<TimeSpan>(nullable: false)
+                    HoraBaja = table.Column<TimeSpan>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -198,29 +198,6 @@ namespace restoAPI.Migrations
                         name: "FK_Deliveries_EstadosDelivery_EstadoId",
                         column: x => x.EstadoId,
                         principalTable: "EstadosDelivery",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Productos",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    TipoDeProductoId = table.Column<int>(nullable: true),
-                    Nombre = table.Column<string>(nullable: true),
-                    Descripcion = table.Column<string>(nullable: true),
-                    FechaAlta = table.Column<DateTime>(nullable: false),
-                    FechaBaja = table.Column<DateTime>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Productos", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Productos_TiposProducto_TipoDeProductoId",
-                        column: x => x.TipoDeProductoId,
-                        principalTable: "TiposProducto",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -256,29 +233,6 @@ namespace restoAPI.Migrations
                         name: "FK_Clientes_TiposTelefono_TipoTelefonoId",
                         column: x => x.TipoTelefonoId,
                         principalTable: "TiposTelefono",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Precios",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    PrecioPublico = table.Column<decimal>(nullable: false),
-                    PrecioCosto = table.Column<decimal>(nullable: false),
-                    FechaAlta = table.Column<DateTime>(nullable: false),
-                    FechaBaja = table.Column<DateTime>(nullable: true),
-                    ProductoId = table.Column<int>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Precios", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Precios_Productos_ProductoId",
-                        column: x => x.ProductoId,
-                        principalTable: "Productos",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -342,7 +296,8 @@ namespace restoAPI.Migrations
                     EstadoPedidoId = table.Column<int>(nullable: true),
                     PuntoExpendioId = table.Column<int>(nullable: true),
                     FechaBaja = table.Column<DateTime>(nullable: true),
-                    HoraBaja = table.Column<TimeSpan>(nullable: false),
+                    HoraBaja = table.Column<TimeSpan>(nullable: true),
+                    IdDetalleMesa = table.Column<int>(nullable: true),
                     DeliveryId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
@@ -391,8 +346,8 @@ namespace restoAPI.Migrations
                     HoraComanda = table.Column<TimeSpan>(nullable: false),
                     Observaciones = table.Column<string>(nullable: true),
                     FechaBaja = table.Column<DateTime>(nullable: true),
-                    HoraBaja = table.Column<TimeSpan>(nullable: false),
-                    PedidoId = table.Column<int>(nullable: true)
+                    HoraBaja = table.Column<TimeSpan>(nullable: true),
+                    PedidoId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -402,37 +357,55 @@ namespace restoAPI.Migrations
                         column: x => x.PedidoId,
                         principalTable: "Pedidos",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "DetallesPedido",
+                name: "DetallesMesa",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    IdPedido = table.Column<int>(nullable: false),
-                    ProductoId = table.Column<int>(nullable: true),
-                    Cantidad = table.Column<decimal>(nullable: false),
-                    Descuento = table.Column<decimal>(nullable: false),
-                    Subtotal = table.Column<decimal>(nullable: false),
+                    FechaApertura = table.Column<DateTime>(nullable: true),
+                    HoraApertura = table.Column<TimeSpan>(nullable: false),
+                    FechaCierre = table.Column<DateTime>(nullable: true),
+                    HoraCierre = table.Column<TimeSpan>(nullable: true),
+                    CantidadComensales = table.Column<short>(nullable: false),
+                    IdMesa = table.Column<int>(nullable: false),
                     FechaBaja = table.Column<DateTime>(nullable: true),
-                    HoraBaja = table.Column<TimeSpan>(nullable: false),
-                    ComandaId = table.Column<int>(nullable: true)
+                    HoraBaja = table.Column<TimeSpan>(nullable: true),
+                    PedidoId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DetallesPedido", x => x.Id);
+                    table.PrimaryKey("PK_DetallesMesa", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DetallesPedido_Comandas_ComandaId",
-                        column: x => x.ComandaId,
-                        principalTable: "Comandas",
+                        name: "FK_DetallesMesa_Pedidos_PedidoId",
+                        column: x => x.PedidoId,
+                        principalTable: "Pedidos",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Mesas",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Descripcion = table.Column<string>(nullable: true),
+                    DetalleAbiertoId = table.Column<int>(nullable: true),
+                    EstaAbierta = table.Column<bool>(nullable: false),
+                    FechaAlta = table.Column<DateTime>(nullable: false),
+                    FechaBaja = table.Column<DateTime>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Mesas", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DetallesPedido_Productos_ProductoId",
-                        column: x => x.ProductoId,
-                        principalTable: "Productos",
+                        name: "FK_Mesas_DetallesMesa_DetalleAbiertoId",
+                        column: x => x.DetalleAbiertoId,
+                        principalTable: "DetallesMesa",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -451,7 +424,8 @@ namespace restoAPI.Migrations
                     FechaAlta = table.Column<DateTime>(nullable: false),
                     HoraAlta = table.Column<TimeSpan>(nullable: false),
                     FechaBaja = table.Column<DateTime>(nullable: true),
-                    HoraBaja = table.Column<TimeSpan>(nullable: false),
+                    HoraBaja = table.Column<TimeSpan>(nullable: true),
+                    MotivoBaja = table.Column<string>(nullable: true),
                     DetalleCajaId = table.Column<int>(nullable: true),
                     PedidoId = table.Column<int>(nullable: true)
                 },
@@ -497,7 +471,7 @@ namespace restoAPI.Migrations
                     MontoApertura = table.Column<decimal>(nullable: false),
                     MontoCierre = table.Column<decimal>(nullable: false),
                     FechaBaja = table.Column<DateTime>(nullable: true),
-                    HoraBaja = table.Column<TimeSpan>(nullable: false),
+                    HoraBaja = table.Column<TimeSpan>(nullable: true),
                     CajaId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
@@ -528,52 +502,74 @@ namespace restoAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Mesas",
+                name: "DetallesPedido",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Descripcion = table.Column<string>(nullable: true),
-                    DetalleAbiertoMesaId = table.Column<int>(nullable: true),
-                    PedidoAbiertoId = table.Column<int>(nullable: true),
-                    EstaAbierta = table.Column<bool>(nullable: false),
-                    FechaAlta = table.Column<DateTime>(nullable: false),
-                    FechaBaja = table.Column<DateTime>(nullable: true)
+                    IdPedido = table.Column<int>(nullable: false),
+                    ProductoId = table.Column<int>(nullable: true),
+                    Cantidad = table.Column<decimal>(nullable: false),
+                    Descuento = table.Column<decimal>(nullable: false),
+                    Subtotal = table.Column<decimal>(nullable: false),
+                    FechaBaja = table.Column<DateTime>(nullable: true),
+                    HoraBaja = table.Column<TimeSpan>(nullable: true),
+                    ComandaId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Mesas", x => x.Id);
+                    table.PrimaryKey("PK_DetallesPedido", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Mesas_Pedidos_PedidoAbiertoId",
-                        column: x => x.PedidoAbiertoId,
-                        principalTable: "Pedidos",
+                        name: "FK_DetallesPedido_Comandas_ComandaId",
+                        column: x => x.ComandaId,
+                        principalTable: "Comandas",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "DetallesMesa",
+                name: "Productos",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    FechaApertura = table.Column<DateTime>(nullable: true),
-                    HoraApertura = table.Column<TimeSpan>(nullable: false),
-                    FechaCierre = table.Column<DateTime>(nullable: true),
-                    HoraCierre = table.Column<TimeSpan>(nullable: false),
-                    CantidadComensales = table.Column<string>(nullable: true),
-                    IdMesa = table.Column<int>(nullable: false),
-                    FechaBaja = table.Column<DateTime>(nullable: true),
-                    HoraBaja = table.Column<TimeSpan>(nullable: false),
-                    MesaId = table.Column<int>(nullable: true)
+                    TipoDeProductoId = table.Column<int>(nullable: true),
+                    Nombre = table.Column<string>(nullable: true),
+                    Descripcion = table.Column<string>(nullable: true),
+                    PrecioActualId = table.Column<int>(nullable: true),
+                    FechaAlta = table.Column<DateTime>(nullable: false),
+                    FechaBaja = table.Column<DateTime>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DetallesMesa", x => x.Id);
+                    table.PrimaryKey("PK_Productos", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DetallesMesa_Mesas_MesaId",
-                        column: x => x.MesaId,
-                        principalTable: "Mesas",
+                        name: "FK_Productos_TiposProducto_TipoDeProductoId",
+                        column: x => x.TipoDeProductoId,
+                        principalTable: "TiposProducto",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Precios",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    PrecioPublico = table.Column<decimal>(nullable: false),
+                    PrecioCosto = table.Column<decimal>(nullable: false),
+                    FechaAlta = table.Column<DateTime>(nullable: false),
+                    FechaBaja = table.Column<DateTime>(nullable: true),
+                    ProductoId = table.Column<int>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Precios", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Precios_Productos_ProductoId",
+                        column: x => x.ProductoId,
+                        principalTable: "Productos",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -609,9 +605,9 @@ namespace restoAPI.Migrations
                 column: "CajaId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DetallesMesa_MesaId",
+                name: "IX_DetallesMesa_PedidoId",
                 table: "DetallesMesa",
-                column: "MesaId");
+                column: "PedidoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DetallesPedido_ComandaId",
@@ -639,14 +635,9 @@ namespace restoAPI.Migrations
                 column: "TipoDireccionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Mesas_DetalleAbiertoMesaId",
+                name: "IX_Mesas_DetalleAbiertoId",
                 table: "Mesas",
-                column: "DetalleAbiertoMesaId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Mesas_PedidoAbiertoId",
-                table: "Mesas",
-                column: "PedidoAbiertoId");
+                column: "DetalleAbiertoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Pagos_BancoId",
@@ -704,6 +695,11 @@ namespace restoAPI.Migrations
                 column: "ProductoId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Productos_PrecioActualId",
+                table: "Productos",
+                column: "PrecioActualId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Productos_TipoDeProductoId",
                 table: "Productos",
                 column: "TipoDeProductoId");
@@ -725,10 +721,18 @@ namespace restoAPI.Migrations
                 onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Mesas_DetallesMesa_DetalleAbiertoMesaId",
-                table: "Mesas",
-                column: "DetalleAbiertoMesaId",
-                principalTable: "DetallesMesa",
+                name: "FK_DetallesPedido_Productos_ProductoId",
+                table: "DetallesPedido",
+                column: "ProductoId",
+                principalTable: "Productos",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Productos_Precios_PrecioActualId",
+                table: "Productos",
+                column: "PrecioActualId",
+                principalTable: "Precios",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
         }
@@ -740,35 +744,26 @@ namespace restoAPI.Migrations
                 table: "Cajas");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_Clientes_TiposCliente_TipoClienteId",
-                table: "Clientes");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Clientes_TiposTelefono_TipoTelefonoId",
-                table: "Clientes");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Mesas_Pedidos_PedidoAbiertoId",
-                table: "Mesas");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_DetallesMesa_Mesas_MesaId",
-                table: "DetallesMesa");
+                name: "FK_Precios_Productos_ProductoId",
+                table: "Precios");
 
             migrationBuilder.DropTable(
                 name: "DetallesPedido");
 
             migrationBuilder.DropTable(
-                name: "Pagos");
+                name: "Mesas");
 
             migrationBuilder.DropTable(
-                name: "Precios");
+                name: "Pagos");
 
             migrationBuilder.DropTable(
                 name: "Repartidores");
 
             migrationBuilder.DropTable(
                 name: "Comandas");
+
+            migrationBuilder.DropTable(
+                name: "DetallesMesa");
 
             migrationBuilder.DropTable(
                 name: "Bancos");
@@ -778,24 +773,6 @@ namespace restoAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "Tarjetas");
-
-            migrationBuilder.DropTable(
-                name: "Productos");
-
-            migrationBuilder.DropTable(
-                name: "TiposProducto");
-
-            migrationBuilder.DropTable(
-                name: "DetallesCaja");
-
-            migrationBuilder.DropTable(
-                name: "Cajas");
-
-            migrationBuilder.DropTable(
-                name: "TiposCliente");
-
-            migrationBuilder.DropTable(
-                name: "TiposTelefono");
 
             migrationBuilder.DropTable(
                 name: "Pedidos");
@@ -825,10 +802,25 @@ namespace restoAPI.Migrations
                 name: "TiposDireccion");
 
             migrationBuilder.DropTable(
-                name: "Mesas");
+                name: "TiposCliente");
 
             migrationBuilder.DropTable(
-                name: "DetallesMesa");
+                name: "TiposTelefono");
+
+            migrationBuilder.DropTable(
+                name: "DetallesCaja");
+
+            migrationBuilder.DropTable(
+                name: "Cajas");
+
+            migrationBuilder.DropTable(
+                name: "Productos");
+
+            migrationBuilder.DropTable(
+                name: "Precios");
+
+            migrationBuilder.DropTable(
+                name: "TiposProducto");
         }
     }
 }

@@ -10,8 +10,8 @@ using restoAPI.Context;
 namespace restoAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20190717212421_addMotivoBajaPago2")]
-    partial class addMotivoBajaPago2
+    [Migration("20190719180345_PrecioUnitarioEnDetallePedido")]
+    partial class PrecioUnitarioEnDetallePedido
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -246,6 +246,8 @@ namespace restoAPI.Migrations
                     b.Property<TimeSpan?>("HoraBaja");
 
                     b.Property<int>("IdPedido");
+
+                    b.Property<decimal>("PrecioUnitario");
 
                     b.Property<int?>("ProductoId");
 

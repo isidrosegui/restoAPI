@@ -26,7 +26,7 @@ namespace restoAPI.Controllers
         {
             //TODO: Luego vamos a ver como lo hacemos de forma asincronica
             return context.Pedidos.Include(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i => i.PrecioActual)
-                    .Include(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i => i.TipoDeProducto).ToList();
+                    .Include(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ToList();
         }
 
         [HttpGet("filtrado")]
@@ -58,28 +58,39 @@ namespace restoAPI.Controllers
         [HttpGet("modificables")]
         public async Task<ActionResult<IEnumerable<Pedido>>> GetAbiertos()
         {
-            //TODO: Luego vamos a ver como lo hacemos de forma asincronica
-            List<int> ids = new List<int>();
-            
-            List<Pedido> listaPedidos = await context.Pedidos.Include(x => x.PuntoExpendio).Include("Direccion.Barrio").Include("Direccion.TipoDireccion").Include(x=>x.ListaComandas).Include(x => x.Cliente).Include(x => x.Cobros).Include(x => x.EstadoPedido).Where(x => x.EstadoPedido.Id<4).ToListAsync();
-            
-            foreach(Pedido p in listaPedidos)
+            try
             {
-                p.DetallesPedido = new List<DetallePedido>();
-                for (int i =0; i< p.ListaComandas.Count;i++)
+                //TODO: Luego vamos a ver como lo hacemos de forma asincronica
+                List<int> ids = new List<int>();
+
+                List<Pedido> listaPedidos = await context.Pedidos.Include(x => x.PuntoExpendio)
+                    .Include("Direccion.Barrio").Include("Direccion.TipoDireccion").
+                    Include(x => x.ListaComandas).ThenInclude(c=>c.Detalles).Include(x => x.Cliente).Include(x => x.Cobros).
+                    Include(x => x.EstadoPedido).Where(x => x.EstadoPedido.Id < 4 && x.IdDetalleMesa == null).ToListAsync();
+
+                foreach (Pedido p in listaPedidos)
                 {
-                    p.ListaComandas[i] = await context.Comandas.Include("Detalles.Producto").Include("Detalles.Producto.HistoPrecios").Where(x=>x.Id == p.ListaComandas[i].Id).FirstOrDefaultAsync();
-                    foreach(DetallePedido d in p.ListaComandas[i].Detalles)
+                    p.DetallesPedido = new List<DetallePedido>();
+                    for (int i = 0; i < p.ListaComandas.Count; i++)
                     {
-                        d.Producto.PrecioActual = d.Producto.HistoPrecios.FirstOrDefault(x => x.FechaBaja == null);
+                        p.ListaComandas[i] = await context.Comandas.Include(x => x.Detalles).ThenInclude(y => y.Producto).ThenInclude(z => z.HistoPrecios).Where(x => x.Id == p.ListaComandas[i].Id).FirstOrDefaultAsync();
+                        p.ListaComandas[i].Detalles = p.ListaComandas[i].Detalles.Where(x => x.FechaBaja == null).ToList();
+                        foreach (DetallePedido d in p.ListaComandas[i].Detalles)
+                        {
+                            d.Producto.PrecioActual = d.Producto.HistoPrecios.FirstOrDefault(x => x.FechaBaja == null);
 
-                        p.DetallesPedido.Add(d);
+                            p.DetallesPedido.Add(d);
 
+                        }
                     }
                 }
+
+                return listaPedidos;
             }
-            
-            return listaPedidos;
+            catch(Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
 
 
@@ -87,28 +98,64 @@ namespace restoAPI.Controllers
         public async Task<ActionResult<IEnumerable<Pedido>>> GetModificablesNoMesa()
         {
             //TODO: Luego vamos a ver como lo hacemos de forma asincronica
-            List<int> ids = new List<int>();
-
-            List<Pedido> listaPedidos = await context.Pedidos.Include(x => x.PuntoExpendio).Include("Direccion.Barrio").Include("Direccion.TipoDireccion").Include(x => x.ListaComandas).
-                Include(x => x.Cliente).Include(x => x.Cobros).Include(x => x.EstadoPedido).Where(x => x.EstadoPedido.Id < 4 && x.IdDetalleMesa==null || x.IdDetalleMesa==0 ).ToListAsync();
-
-            foreach (Pedido p in listaPedidos)
+            
+            try
             {
-                p.DetallesPedido = new List<DetallePedido>();
-                for (int i = 0; i < p.ListaComandas.Count; i++)
+                List<int> ids = new List<int>();
+
+                List<Pedido> listaPedidos = await context.Pedidos.Include(x => x.PuntoExpendio).Include("Direccion.Barrio")
+                    .Include("Direccion.TipoDireccion").Include(x => x.ListaComandas).Include(x => x.Cliente).Include(x => x.Cobros)
+                    .Include(x => x.EstadoPedido).Where(x => x.EstadoPedido.Id < 4 && x.IdDetalleMesa==null && x.FechaBaja==null).ToListAsync();
+
+                foreach (Pedido p in listaPedidos)
                 {
-                    p.ListaComandas[i] = await context.Comandas.Include("Detalles.Producto").Include("Detalles.Producto.HistoPrecios").Where(x => x.Id == p.ListaComandas[i].Id).FirstOrDefaultAsync();
-                    foreach (DetallePedido d in p.ListaComandas[i].Detalles)
+                    p.DetallesPedido = new List<DetallePedido>();
+                    for (int i = 0; i < p.ListaComandas.Count; i++)
                     {
-                        d.Producto.PrecioActual = d.Producto.HistoPrecios.FirstOrDefault(x => x.FechaBaja == null);
+                        p.ListaComandas[i] = await context.Comandas.Include("Detalles.Producto").
+                            Include("Detalles.Producto.HistoPrecios").Where(x => x.Id == p.ListaComandas[i].Id).FirstOrDefaultAsync();
+                        foreach (DetallePedido d in p.ListaComandas[i].Detalles)
+                        {
+                            d.Producto.PrecioActual = d.Producto.HistoPrecios.FirstOrDefault(x => x.FechaBaja == null);
 
-                        p.DetallesPedido.Add(d);
+                            p.DetallesPedido.Add(d);
 
+                        }
                     }
                 }
+
+                return listaPedidos;
+
+
+                //List<Pedido> listaPedidos = await context.Pedidos.Include(x => x.PuntoExpendio).
+                //    Include(x => x.Direccion).ThenInclude(y => y.Barrio).Include(x => x.Direccion).ThenInclude(y => y.TipoDireccion)
+                //    .Include(w => w.ListaComandas).ThenInclude(h=>h.Detalles).ThenInclude(i=>i.Producto).ThenInclude(g=>g.TipoDeProducto)
+                //    .Include(w => w.ListaComandas).ThenInclude(h => h.Detalles).ThenInclude(i => i.Producto).ThenInclude(g => g.HistoPrecios)
+                //    .Include(x => x.Cliente).Include(x => x.Cobros).Include(x => x.EstadoPedido)
+                //    .Where(x => x.EstadoPedido.Id < 4 && x.IdDetalleMesa == null || x.IdDetalleMesa == 0).ToListAsync();
+
+                //foreach (Pedido p in listaPedidos)
+                //{
+                //    p.DetallesPedido = new List<DetallePedido>();
+                //    foreach (Comanda c in p.ListaComandas)
+                //    {
+                //        foreach (DetallePedido d in c.Detalles)
+                //        {
+                //            d.Producto.PrecioActual = d.Producto.HistoPrecios.FirstOrDefault(x => x.FechaBaja == null);
+
+                //            p.DetallesPedido.Add(d);
+
+                //        }
+                //    }
+                //}
+
+                //return listaPedidos;
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex);
             }
 
-            return listaPedidos;
         }
 
         [HttpGet("{id}", Name = "ObtenerPedidoById")]
@@ -141,7 +188,7 @@ namespace restoAPI.Controllers
                 p.Cliente = value.Cliente;
                 p.PuntoExpendio = value.PuntoExpendio;
                 p.ListaComandas = new List<Comanda>();
-
+               
                 foreach (Comanda c in value.ListaComandas)
                 {
                     Comanda co = new Comanda();
@@ -214,7 +261,9 @@ namespace restoAPI.Controllers
         {
             try
             {
-                 var pedidoExistente = await context.Pedidos.Include(x => x.ListaComandas).ThenInclude(z=>z.Detalles).ThenInclude(p=>p.Producto).FirstOrDefaultAsync(x => x.Id == value.Id);
+                var pedidoExistente = await context.Pedidos.Include(x => x.ListaComandas).ThenInclude(z=>z.Detalles).ThenInclude(p=>p.Producto).FirstOrDefaultAsync(x => x.Id == value.Id);
+                pedidoExistente.MontoTotal = value.MontoTotal;
+                    
                 if (pedidoExistente.ListaComandas == null)
                 {
                     pedidoExistente.ListaComandas = new List<Comanda>();
@@ -232,6 +281,7 @@ namespace restoAPI.Controllers
                     com.PedidoId = value.Id;
                     com.NroComanda = Convert.ToInt16((context.Comandas.Where(x => x.FechaComanda.Date.Day == DateTime.Now.Date.Day).Count()) + 1);
                     com.FechaComanda = DateTime.Now.Date;
+                    com.HoraComanda = DateTime.Now.TimeOfDay;
                     com.Detalles = new List<DetallePedido>();
                     com.Observaciones = c.Observaciones;
                     //creo los detalles para la comanda nueva
@@ -245,6 +295,7 @@ namespace restoAPI.Controllers
                         dn.Producto = await context.Productos.Where(p => p.Id == d.Producto.Id).FirstAsync();
                         dn.Subtotal = d.Subtotal;
                         dn.IdPedido = value.Id;
+                        dn.PrecioUnitario = d.PrecioUnitario;
                         com.Detalles.Add(dn);
                     }
                     context.Comandas.Add(com);
@@ -253,10 +304,45 @@ namespace restoAPI.Controllers
                     
                 }
 
+
                 //modifico las comandas existentes
-               
+                foreach (Comanda c in value.ListaComandas.Where(x => x.Id != 0))
+                {
+                    Comanda com = context.Comandas.Where(x => x.Id == c.Id).Include(x=>x.Detalles).FirstOrDefault();
+                    com.Observaciones = c.Observaciones;
+                    //creo los detalles nuevos
+                    foreach (DetallePedido d in c.Detalles.Where(x=>x.Id==0))
+                    {
+                        DetallePedido dn = new DetallePedido();
+                        dn.Cantidad = d.Cantidad;
+                        dn.Descuento = d.Descuento;
+                        dn.FechaBaja = d.FechaBaja;
+                        dn.HoraBaja = d.HoraBaja;
+                        dn.Producto = await context.Productos.Where(p => p.Id == d.Producto.Id).FirstAsync();
+                        dn.Subtotal = d.Subtotal;
+                        dn.IdPedido = value.Id;
+                        com.Detalles.Add(dn);
+                        context.Entry(dn).State = EntityState.Added;
+                    }
+                   // modifico los existentes
+                    foreach (DetallePedido d in c.Detalles.Where(x => x.Id != 0))
+                    {
+                       DetallePedido det = com.Detalles.Where(x => x.Id == d.Id).First();
+                        context.Entry(det).CurrentValues.SetValues(d);
+                        context.Entry(det).State = EntityState.Modified;
+                    }
+                    context.Entry(com).State = EntityState.Modified;
+                    //ERROR TIPO DE PRODUCTO DETACHED.
+                    
+                    context.SaveChanges();
+
+                }
+
+
                 context.SaveChanges();
-                return Ok();
+               pedidoExistente= context.Pedidos.Include(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i => i.PrecioActual)
+                    .Include(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i => i.TipoDeProducto).FirstOrDefault(x => x.Id == id);
+                return Ok(pedidoExistente);
             }catch(Exception ex)
             {
                 return BadRequest(ex);

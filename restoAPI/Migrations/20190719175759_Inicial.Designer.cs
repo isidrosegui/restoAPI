@@ -10,14 +10,14 @@ using restoAPI.Context;
 namespace restoAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20190711115337_detalleAbiertoenmesa")]
-    partial class detalleAbiertoenmesa
+    [Migration("20190719175759_Inicial")]
+    partial class Inicial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.2.4-servicing-10062")
+                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -393,6 +393,8 @@ namespace restoAPI.Migrations
 
                     b.Property<decimal>("Monto");
 
+                    b.Property<string>("MotivoBaja");
+
                     b.Property<int?>("PedidoId");
 
                     b.HasKey("Id");
@@ -435,6 +437,8 @@ namespace restoAPI.Migrations
                     b.Property<TimeSpan?>("HoraBaja");
 
                     b.Property<TimeSpan>("HoraEntrega");
+
+                    b.Property<int?>("IdDetalleMesa");
 
                     b.Property<decimal>("MontoTotal");
 
@@ -496,9 +500,13 @@ namespace restoAPI.Migrations
 
                     b.Property<string>("Nombre");
 
+                    b.Property<int?>("PrecioActualId");
+
                     b.Property<int?>("TipoDeProductoId");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PrecioActualId");
 
                     b.HasIndex("TipoDeProductoId");
 
@@ -745,6 +753,10 @@ namespace restoAPI.Migrations
 
             modelBuilder.Entity("restoAPI.Entities.Producto", b =>
                 {
+                    b.HasOne("restoAPI.Entities.Precio", "PrecioActual")
+                        .WithMany()
+                        .HasForeignKey("PrecioActualId");
+
                     b.HasOne("restoAPI.Entities.TipoProducto", "TipoDeProducto")
                         .WithMany()
                         .HasForeignKey("TipoDeProductoId");

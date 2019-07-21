@@ -81,6 +81,7 @@ namespace restoAPI.Controllers
                     dn.Descuento = d.Descuento;
                     dn.FechaBaja = d.FechaBaja;
                     dn.HoraBaja = d.HoraBaja;
+                    dn.PrecioUnitario = d.PrecioUnitario;
                     dn.Producto = await context.Productos.Where(p => p.Id == d.Producto.Id).FirstAsync();
                     dn.Subtotal = d.Subtotal;
                     ce.Detalles.Add(dn);

@@ -31,7 +31,7 @@ namespace restoAPI.Controllers
 
             foreach (Mesa m in mesas.Where(x=>x.DetalleAbierto != null).ToList())
             {
-                m.DetalleAbierto.Pedido.DetallesPedido  = context.DetallesPedido.FromSql("select * from DetallesPedido where IdPedido =" + m.DetalleAbierto.Pedido.Id ).ToList();
+                m.DetalleAbierto.Pedido.DetallesPedido = context.DetallesPedido.Where(x => x.IdPedido == m.DetalleAbierto.Pedido.Id && x.FechaBaja == null).ToList();
             }
 
             return mesas;
@@ -50,16 +50,25 @@ namespace restoAPI.Controllers
         }
 
         [HttpGet("Abiertas")]
-        public ActionResult<Mesa> GetAbiertas()
+        public ActionResult<IEnumerable<Mesa>> GetAbiertas()
         {
-            var value = context.Mesas.Include(w => w.DetalleAbierto).ThenInclude(x => x.Pedido).ThenInclude(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i => i.PrecioActual)
-                    .Include(w => w.DetalleAbierto).ThenInclude(x => x.Pedido).ThenInclude(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i => i.TipoDeProducto).Where(s => s.EstaAbierta && s.DetalleAbierto.Pedido.ListaComandas!=null && s.DetalleAbierto.Pedido.ListaComandas.Count>0).First();
-            if (value == null)
+            //TODO: Luego vamos a ver como lo hacemos de forma asincronica
+            List<Mesa> mesas = context.Mesas.Include(w => w.DetalleAbierto).
+                ThenInclude(x => x.Pedido).ThenInclude(p => p.ListaComandas).
+                ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).
+                ThenInclude(i => i.PrecioActual).Include(w => w.DetalleAbierto).ThenInclude(x => x.Pedido).
+                ThenInclude(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).
+                ThenInclude(i => i.TipoDeProducto).Where(x=>x.EstaAbierta).ToList();
+
+            foreach (Mesa m in mesas.Where(x => x.DetalleAbierto != null).ToList())
             {
-                return NotFound();
+                m.DetalleAbierto.Pedido.DetallesPedido = context.DetallesPedido.Where(x => x.IdPedido == m.DetalleAbierto.Pedido.Id && x.FechaBaja == null).ToList();
+
             }
-            return value;
+
+            return mesas;
         }
+
 
 
         [HttpPost]

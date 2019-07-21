@@ -245,6 +245,8 @@ namespace restoAPI.Migrations
 
                     b.Property<int>("IdPedido");
 
+                    b.Property<decimal>("PrecioUnitario");
+
                     b.Property<int?>("ProductoId");
 
                     b.Property<decimal>("Subtotal");
