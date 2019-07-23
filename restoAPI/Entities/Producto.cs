@@ -18,6 +18,8 @@ namespace restoAPI.Entities
         public Precio PrecioActual { get; set; }
         public DateTime FechaAlta { get; set;}
         public DateTime? FechaBaja { get; set; }
+
+        public bool ImprimeEnComanda { get; set; }
         //public List<String> UrlImage  { get; set; }
     }
 }
