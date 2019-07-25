@@ -60,6 +60,27 @@ namespace restoAPI.Controllers
 
         }
 
+        [HttpPut("abrir/{id}")]
+        public ActionResult PutAbrir(Int16 id, [FromBody] Caja value)
+        {
+            if (id != value.Id)
+            {
+                return BadRequest();
+            }
+
+            DetalleCaja det = new DetalleCaja();
+            det.MontoApertura = value.DetalleAbierto.MontoApertura;
+            det.FechaApertura = DateTime.Now.Date;
+            det.HoraApertura = DateTime.Now.TimeOfDay;
+            context.DetallesCaja.Add(det);
+            context.SaveChanges();
+            value.DetalleAbierto = det;
+            context.Entry(value).State = EntityState.Modified;
+            context.SaveChanges();
+            return Ok(value);
+
+        }
+
         [HttpDelete("{id}")]
         public ActionResult<Caja> Delete(Int16 id)
         {

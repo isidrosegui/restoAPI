@@ -48,6 +48,29 @@ namespace restoAPI.Controllers
             return new CreatedAtRouteResult("ObtenerPagoById", new { id = value.Id }, value);
         }
 
+        [HttpPost("cobrar")]
+        public ActionResult PostCobrar([FromBody] List<Pago> value,[FromQuery] Int32 idPedido, [FromQuery] Int32 idDetalleCaja)
+        {
+            Pedido pedido = context.Pedidos.FirstOrDefault(x => x.Id == idPedido);
+            DetalleCaja detalle = context.DetallesCaja.FirstOrDefault(x => x.Id == idDetalleCaja);
+            context.Pagos.AddRange(value);
+            List<Int32> idsCobros = new List<int>();
+            foreach(Pago p in value)
+            {
+                idsCobros.Add(p.Id);
+            }
+            context.SaveChanges();
+            pedido.Cobros.AddRange(context.Pagos.Where(t => idsCobros.Contains(t.Id)));
+            detalle.Cobros.AddRange(context.Pagos.Where(t => idsCobros.Contains(t.Id)));
+
+
+
+
+            return Ok(value);
+        }
+
+
+
         [HttpPut("{id}")]
         public ActionResult Put(Int16 id, [FromBody] Pago value)
         {
