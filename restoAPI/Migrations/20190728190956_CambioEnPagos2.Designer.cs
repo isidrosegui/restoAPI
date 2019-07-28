@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using restoAPI.Context;
 
 namespace restoAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190728190956_CambioEnPagos2")]
+    partial class CambioEnPagos2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -163,27 +165,6 @@ namespace restoAPI.Migrations
                     b.HasIndex("EstadoId");
 
                     b.ToTable("Deliveries");
-                });
-
-            modelBuilder.Entity("restoAPI.Entities.DetalleArqueo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("DetalleCajaId");
-
-                    b.Property<int?>("FormaPagoId");
-
-                    b.Property<decimal>("Monto");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DetalleCajaId");
-
-                    b.HasIndex("FormaPagoId");
-
-                    b.ToTable("DetallesArqueo");
                 });
 
             modelBuilder.Entity("restoAPI.Entities.DetalleCaja", b =>
@@ -672,18 +653,6 @@ namespace restoAPI.Migrations
                     b.HasOne("restoAPI.Entities.EstadoDelivery", "Estado")
                         .WithMany()
                         .HasForeignKey("EstadoId");
-                });
-
-            modelBuilder.Entity("restoAPI.Entities.DetalleArqueo", b =>
-                {
-                    b.HasOne("restoAPI.Entities.DetalleCaja")
-                        .WithMany("Arqueo")
-                        .HasForeignKey("DetalleCajaId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("restoAPI.Entities.FormaPago", "FormaPago")
-                        .WithMany()
-                        .HasForeignKey("FormaPagoId");
                 });
 
             modelBuilder.Entity("restoAPI.Entities.DetalleCaja", b =>

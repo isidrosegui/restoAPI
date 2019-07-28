@@ -41,6 +41,7 @@ namespace restoAPI.Context
         public DbSet<TipoDireccion> TiposDireccion { get; set; }
         public DbSet<TipoProducto> TiposProducto { get; set; }
         public DbSet<TipoTelefono> TiposTelefono{ get; set; }
+        public DbSet<DetalleArqueo> DetallesArqueo { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Pedido>().Ignore(c => c.DetallesPedido);

@@ -19,8 +19,8 @@ namespace restoAPI.Entities
         public DateTime? FechaBaja { get; set; }
         public TimeSpan? HoraBaja { get; set; }
         public String MotivoBaja { get; set; }
-        public Int32 IdPedido { get; set; }
-        public Int32 IdDetalleCaja { get; set; }
+        public Int32 PedidoId { get; set; }
+        public Int32 DetalleCajaId { get; set; }
 
         }
 

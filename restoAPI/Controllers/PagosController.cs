@@ -51,18 +51,41 @@ namespace restoAPI.Controllers
         [HttpPost("cobrar")]
         public ActionResult PostCobrar([FromBody] List<Pago> value,[FromQuery] Int32 idPedido, [FromQuery] Int32 idDetalleCaja)
         {
-            Pedido pedido = context.Pedidos.FirstOrDefault(x => x.Id == idPedido);
-            DetalleCaja detalle = context.DetallesCaja.FirstOrDefault(x => x.Id == idDetalleCaja);
+            Pedido pedido = context.Pedidos.Include(g => g.Cobros).ThenInclude(t => t.FormaPago).FirstOrDefault(x => x.Id == idPedido);
+            DetalleCaja detalle = context.DetallesCaja.Include(g => g.Cobros).ThenInclude(t => t.FormaPago).FirstOrDefault(x => x.Id == idDetalleCaja);
             context.Pagos.AddRange(value);
             List<Int32> idsCobros = new List<int>();
             foreach(Pago p in value)
             {
+                p.FormaPago = context.FormasPago.FirstOrDefault(x => x.Id == p.FormaPago.Id);
                 idsCobros.Add(p.Id);
+                context.Entry(p.FormaPago).State = EntityState.Modified;
             }
             context.SaveChanges();
+            foreach (Pago p in value)
+            {
+                idsCobros.Add(p.Id);  
+            }
             pedido.Cobros.AddRange(context.Pagos.Where(t => idsCobros.Contains(t.Id)));
             detalle.Cobros.AddRange(context.Pagos.Where(t => idsCobros.Contains(t.Id)));
 
+            if(pedido.Cobros.Sum(x=>x.Monto) ==pedido.MontoTotal)
+            {
+                //TODO:Ver bien cual es el estado que corresponde
+                if (value.Sum(x => x.Monto) == pedido.MontoTotal)
+                    pedido.EstadoPedido = context.EstadosPedido.FirstOrDefault(x=>x.Id==4);
+                else if (value.Sum(x => x.Monto) < pedido.MontoTotal)
+                    pedido.EstadoPedido = context.EstadosPedido.FirstOrDefault(x => x.Id == 8);
+            }
+            else
+            {
+                //TODO:Ver bien cual es el estado que corresponde
+                pedido.EstadoPedido = context.EstadosPedido.FirstOrDefault(x => x.Id == 8);
+            }
+            context.Entry(pedido).State = EntityState.Modified;
+            context.Entry(detalle).State = EntityState.Modified;
+
+            context.SaveChanges();
 
 
 

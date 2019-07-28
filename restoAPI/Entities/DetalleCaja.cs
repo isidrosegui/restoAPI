@@ -18,7 +18,7 @@ namespace restoAPI.Entities
         public List<Pago> Cobros { get; set; }
         public DateTime? FechaBaja { get; set; }
         public TimeSpan? HoraBaja { get; set; }
-
-
+        public List<DetalleArqueo> Arqueo { get; set; }
+        
     }
 }

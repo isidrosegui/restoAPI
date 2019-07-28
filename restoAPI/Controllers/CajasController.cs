@@ -24,14 +24,20 @@ namespace restoAPI.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Caja>> Get()
         {
-            //TODO: Luego vamos a ver como lo hacemos de forma asincronica
-            return context.Cajas.Where(x => x.FechaBaja == null).ToList();
-        }
+            try {
+                //TODO: Luego vamos a ver como lo hacemos de forma asincronica
+                var lista = context.Cajas.Include(x => x.DetalleAbierto).ThenInclude(y => y.Cobros).Where(x => x.FechaBaja == null).ToList();
+                return lista;
+            } catch(Exception ex)
+            {
+                return BadRequest(ex);
 
+            }
+            }
         [HttpGet("{id}", Name = "ObtenerCajaById")]
         public ActionResult<Caja> Get(Int16 id)
         {
-            var value = context.Cajas.FirstOrDefault(x => x.Id == id);
+            var value = context.Cajas.Include(x => x.DetalleAbierto).ThenInclude(y => y.Cobros).FirstOrDefault(x => x.Id == id);
             if (value == null)
             {
                 return NotFound();

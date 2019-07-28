@@ -39,4 +39,3 @@ C:\Proyectos\Restorant\restoAPI\restoAPI\bin\Debug\netcoreapp2.2\restoAPI.pdb
 C:\Proyectos\Restorant\restoAPI\restoAPI\obj\Debug\netcoreapp2.2\restoAPI.RazorTargetAssemblyInfo.cache
 C:\Proyectos\Restorant\restoAPI\restoAPI\obj\Debug\netcoreapp2.2\restoAPI.dll
 C:\Proyectos\Restorant\restoAPI\restoAPI\obj\Debug\netcoreapp2.2\restoAPI.pdb
-C:\Proyectos\Restorant\restoAPI\restoAPI\obj\Debug\netcoreapp2.2\restoAPI.csprojAssemblyReference.cache

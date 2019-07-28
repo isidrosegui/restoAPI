@@ -26,7 +26,9 @@ namespace restoAPI.Controllers
         {
             //TODO: Luego vamos a ver como lo hacemos de forma asincronica
             return context.Pedidos.Include(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i => i.PrecioActual)
-                    .Include(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ToList();
+                    .Include(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto)
+                    .Include(g=>g.Cobros).ThenInclude(t=>t.FormaPago)
+                    .Include(i=>i.EstadoPedido).ToList();
         }
 
         [HttpGet("filtrado")]
@@ -34,7 +36,8 @@ namespace restoAPI.Controllers
         {
             //TODO: Luego vamos a ver como lo hacemos de forma asincronica
             var lista = await context.Pedidos.Include(x=>x.PuntoExpendio).Include(x=>x.Direccion).
-                Include(x=>x.Cliente).Include(x=>x.ListaComandas).Include(x=>x.Cobros).Include(x=>x.EstadoPedido).
+                Include(x=>x.Cliente).Include(x=>x.ListaComandas).Include(x=>x.Cobros).Include(x=>x.EstadoPedido)
+                  .Include(g => g.Cobros).ThenInclude(t => t.FormaPago).
                     Where(x=> ((string.IsNullOrEmpty(idEstado1) || x.EstadoPedido.Id==Convert.ToInt32(idEstado1)) ||
                         (string.IsNullOrEmpty(idEstado2) || x.EstadoPedido.Id == Convert.ToInt32(idEstado2))) &&
                             (string.IsNullOrEmpty(idPuntoExpendio) || x.PuntoExpendio.Id == Convert.ToInt32(idPuntoExpendio))).ToListAsync();
@@ -65,7 +68,8 @@ namespace restoAPI.Controllers
 
                 List<Pedido> listaPedidos = await context.Pedidos.Include(x => x.PuntoExpendio)
                     .Include("Direccion.Barrio").Include("Direccion.TipoDireccion").
-                    Include(x => x.ListaComandas).ThenInclude(c=>c.Detalles).Include(x => x.Cliente).Include(x => x.Cobros).
+                    Include(x => x.ListaComandas).ThenInclude(c=>c.Detalles).Include(x => x.Cliente)
+                    .Include(g => g.Cobros).ThenInclude(t => t.FormaPago).
                     Include(x => x.EstadoPedido).Where(x => x.EstadoPedido.Id < 4 && x.IdDetalleMesa == null).ToListAsync();
 
                 foreach (Pedido p in listaPedidos)
@@ -102,10 +106,10 @@ namespace restoAPI.Controllers
             try
             {
                 List<int> ids = new List<int>();
-
+                //TODO: Ver el estado pedido que estoy buscando
                 List<Pedido> listaPedidos = await context.Pedidos.Include(x => x.PuntoExpendio).Include("Direccion.Barrio")
                     .Include("Direccion.TipoDireccion").Include(x => x.ListaComandas).Include(x => x.Cliente).Include(x => x.Cobros)
-                    .Include(x => x.EstadoPedido).Where(x => x.EstadoPedido.Id < 4 && x.IdDetalleMesa==null && x.FechaBaja==null).ToListAsync();
+                    .Include(x => x.EstadoPedido).Where(x => (x.EstadoPedido.Id < 4 || x.EstadoPedido.Id == 8) && x.IdDetalleMesa==null && x.FechaBaja==null).ToListAsync();
 
                 foreach (Pedido p in listaPedidos)
                 {
