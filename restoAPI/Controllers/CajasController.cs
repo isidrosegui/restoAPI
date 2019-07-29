@@ -24,6 +24,7 @@ namespace restoAPI.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Caja>> Get()
         {
+
             try {
                 //TODO: Luego vamos a ver como lo hacemos de forma asincronica
                 var lista = context.Cajas.Include(x => x.DetalleAbierto).ThenInclude(y => y.Cobros).Where(x => x.FechaBaja == null).ToList();
@@ -31,6 +32,8 @@ namespace restoAPI.Controllers
             } catch(Exception ex)
             {
                 return BadRequest(ex);
+
+
 
             }
             }

@@ -22,6 +22,7 @@ namespace restoAPI.Entities
         public Int32 PedidoId { get; set; }
         public Int32 DetalleCajaId { get; set; }
 
+
         }
 
         /*falta usuario y Perfil*/

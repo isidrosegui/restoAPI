@@ -24,7 +24,7 @@ namespace restoAPI.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Pedido>> Get()
         {
-            //TODO: Luego vamos a ver como lo hacemos de forma asincronica
+            
             return context.Pedidos.Include(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i => i.PrecioActual)
                     .Include(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto)
                     .Include(g=>g.Cobros).ThenInclude(t=>t.FormaPago)
@@ -34,7 +34,7 @@ namespace restoAPI.Controllers
         [HttpGet("filtrado")]
         public async Task<ActionResult<IEnumerable<Pedido>>> Get([FromQuery]string idEstado1, [FromQuery]string idEstado2, [FromQuery] string idPuntoExpendio)
         {
-            //TODO: Luego vamos a ver como lo hacemos de forma asincronica
+            
             var lista = await context.Pedidos.Include(x=>x.PuntoExpendio).Include(x=>x.Direccion).
                 Include(x=>x.Cliente).Include(x=>x.ListaComandas).Include(x=>x.Cobros).Include(x=>x.EstadoPedido)
                   .Include(g => g.Cobros).ThenInclude(t => t.FormaPago).
@@ -63,14 +63,15 @@ namespace restoAPI.Controllers
         {
             try
             {
-                //TODO: Luego vamos a ver como lo hacemos de forma asincronica
+                
                 List<int> ids = new List<int>();
 
                 List<Pedido> listaPedidos = await context.Pedidos.Include(x => x.PuntoExpendio)
-                    .Include("Direccion.Barrio").Include("Direccion.TipoDireccion").
-                    Include(x => x.ListaComandas).ThenInclude(c=>c.Detalles).Include(x => x.Cliente)
+                    .Include("Direccion.Barrio").Include("Direccion.TipoDireccion")
+                    .Include(x => x.ListaComandas).ThenInclude(c=>c.Detalles).Include(x => x.Cliente)
                     .Include(g => g.Cobros).ThenInclude(t => t.FormaPago).
                     Include(x => x.EstadoPedido).Where(x => x.EstadoPedido.Id < 4 && x.IdDetalleMesa == null).ToListAsync();
+
 
                 foreach (Pedido p in listaPedidos)
                 {
@@ -101,7 +102,7 @@ namespace restoAPI.Controllers
         [HttpGet("modificablesNoMesa")]
         public async Task<ActionResult<IEnumerable<Pedido>>> GetModificablesNoMesa()
         {
-            //TODO: Luego vamos a ver como lo hacemos de forma asincronica
+            
             
             try
             {
@@ -109,7 +110,8 @@ namespace restoAPI.Controllers
                 //TODO: Ver el estado pedido que estoy buscando
                 List<Pedido> listaPedidos = await context.Pedidos.Include(x => x.PuntoExpendio).Include("Direccion.Barrio")
                     .Include("Direccion.TipoDireccion").Include(x => x.ListaComandas).Include(x => x.Cliente).Include(x => x.Cobros)
-                    .Include(x => x.EstadoPedido).Where(x => (x.EstadoPedido.Id < 4 || x.EstadoPedido.Id == 8) && x.IdDetalleMesa==null && x.FechaBaja==null).ToListAsync();
+                    .Include(x => x.EstadoPedido).Where(x => (x.EstadoPedido.Id <=8) && x.IdDetalleMesa==null && x.FechaBaja==null).ToListAsync();
+
 
                 foreach (Pedido p in listaPedidos)
                 {
@@ -206,8 +208,6 @@ namespace restoAPI.Controllers
                         context.Entry(de).CurrentValues.SetValues(d);
                         de.Producto = context.Productos.Include(h=>h.TipoDeProducto).FirstOrDefault(x => x.Id == d.Producto.Id);
                         co.Detalles.Add(de);
-                        
-                       
                     }
 
                     p.ListaComandas.Add(co);

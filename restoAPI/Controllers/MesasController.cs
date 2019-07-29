@@ -49,7 +49,7 @@ namespace restoAPI.Controllers
             return value;
         }
 
-        [HttpGet("Abiertas")]
+        [HttpGet("abiertas")]
         public ActionResult<IEnumerable<Mesa>> GetAbiertas()
         {
             //TODO: Luego vamos a ver como lo hacemos de forma asincronica
@@ -70,6 +70,26 @@ namespace restoAPI.Controllers
         }
 
 
+        [HttpGet("porcobrar")]
+        public ActionResult<IEnumerable<Mesa>> GetPorCobrar()
+        {
+            //TODO: Luego vamos a ver como lo hacemos de forma asincronica
+            List<Mesa> mesas = 
+                context.Mesas.Include(w => w.DetalleAbierto).ThenInclude(x => x.Pedido).ThenInclude(p => p.ListaComandas).
+                    ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i => i.PrecioActual).
+                Include(w => w.DetalleAbierto).ThenInclude(x => x.Pedido).ThenInclude(p => p.ListaComandas).
+                    ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i => i.TipoDeProducto).
+                Include(w => w.DetalleAbierto).ThenInclude(x => x.Pedido).ThenInclude(t=>t.Cobros)
+                .Where(x => x.DetalleAbierto.Pedido.EstadoPedido.Id<8).ToList();
+
+            foreach (Mesa m in mesas.Where(x => x.DetalleAbierto != null).ToList())
+            {
+                m.DetalleAbierto.Pedido.DetallesPedido = context.DetallesPedido.Where(x => x.IdPedido == m.DetalleAbierto.Pedido.Id && x.FechaBaja == null).ToList();
+
+            }
+
+            return mesas;
+        }
 
         [HttpPost]
         public ActionResult Post([FromBody] Mesa value)
