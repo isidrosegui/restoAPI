@@ -65,25 +65,31 @@ namespace restoAPI.Controllers
                     foreach (Pago p in value)
                     {
                         p.FormaPago = context.FormasPago.FirstOrDefault(x => x.Id == p.FormaPago.Id);
-                        p.MarcaTarjeta = context.Tarjetas.FirstOrDefault(x => x.Id == p.MarcaTarjeta.Id);
-                        p.Banco = context.Bancos.FirstOrDefault(x => x.Id == p.Banco.Id);
+                        if (p.MarcaTarjeta != null)
+                        {
+                            p.MarcaTarjeta = context.Tarjetas.FirstOrDefault(x => x.Id == p.MarcaTarjeta.Id);
+                            context.Entry(p.MarcaTarjeta).State = EntityState.Modified;
+                        }
+                        if (p.Banco != null)
+                        {
+                            p.Banco = context.Bancos.FirstOrDefault(x => x.Id == p.Banco.Id);
+                            context.Entry(p.Banco).State = EntityState.Modified;
+                        }
                         p.PedidoId = idPedido;
                         p.DetalleCajaId = idDetalleCaja;
                         p.FechaAlta = DateTime.Now.Date;
                         p.HoraAlta = DateTime.Now.TimeOfDay;
+                        context.Entry(p.FormaPago).State = EntityState.Modified;
+                       
                     }
                     context.Pagos.AddRange(value);
 
                     List<Int32> idsCobros = new List<int>();
 
                     context.SaveChanges();
-                    foreach (Pago p in value)
-                    {
-                        p.FormaPago = context.FormasPago.FirstOrDefault(x => x.Id == p.FormaPago.Id);
-                        context.Entry(p.FormaPago).State = EntityState.Modified;
-                    }
+                  
 
-                    context.SaveChanges();
+                    //context.SaveChanges();
                     foreach (Pago p in value)
                     {
                         idsCobros.Add(p.Id);
@@ -91,19 +97,12 @@ namespace restoAPI.Controllers
                     pedido.Cobros.AddRange(context.Pagos.Where(t => idsCobros.Contains(t.Id)));
                     detalle.Cobros.AddRange(context.Pagos.Where(t => idsCobros.Contains(t.Id)));
 
-                    if (pedido.Cobros.Sum(x => x.Monto) == pedido.MontoTotal)
+                    if ( (pedido.IdDetalleMesa==null || pedido.IdDetalleMesa==0) && pedido.Cobros.Sum(x => x.Monto) == pedido.MontoTotal)
                     {
-                        //TODO:Ver bien cual es el estado que corresponde
                         if (value.Sum(x => x.Monto) == pedido.MontoTotal)
-                            pedido.EstadoPedido = context.EstadosPedido.FirstOrDefault(x => x.Id == 4);
-                        else if (value.Sum(x => x.Monto) < pedido.MontoTotal)
-                            pedido.EstadoPedido = context.EstadosPedido.FirstOrDefault(x => x.Id == 8);
+                            pedido.EstadoPedido = context.EstadosPedido.FirstOrDefault(x => x.Id == 10);
                     }
-                    else
-                    {
-                        //TODO:Ver bien cual es el estado que corresponde
-                        pedido.EstadoPedido = context.EstadosPedido.FirstOrDefault(x => x.Id == 8);
-                    }
+                    
                     context.Entry(pedido).State = EntityState.Modified;
                     context.Entry(detalle).State = EntityState.Modified;
 

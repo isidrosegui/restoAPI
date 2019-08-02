@@ -137,7 +137,7 @@ namespace restoAPI.Controllers
             pedido.FechaAlta = DateTime.Now;
             pedido.HoraAlta = DateTime.Now.TimeOfDay;
             pedido.NroPedido = Convert.ToInt16((context.Pedidos.Where(x => x.FechaAlta.Value.Date.Day == DateTime.Now.Date.Day).Count()) + 1);
-            pedido.EstadoPedido = context.EstadosPedido.FirstOrDefaultAsync(x => x.Id == 11).Result;
+            pedido.EstadoPedido = context.EstadosPedido.FirstOrDefaultAsync(x => x.Id == 1).Result;
             
             //lo agrego al context;
             context.Pedidos.Add(pedido);
