@@ -79,7 +79,7 @@ namespace restoAPI.Controllers
                     ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i => i.PrecioActual).
                 Include(w => w.DetalleAbierto).ThenInclude(x => x.Pedido).ThenInclude(p => p.ListaComandas).
                     ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i => i.TipoDeProducto).
-                Include(w => w.DetalleAbierto).ThenInclude(x => x.Pedido).ThenInclude(t=>t.Cobros)
+                Include(w => w.DetalleAbierto).ThenInclude(x => x.Pedido).ThenInclude(t=>t.Cobros).ThenInclude(w=>w.FormaPago)
                 .Where(x => x.DetalleAbierto.Pedido.EstadoPedido.Id<8).ToList();
 
             foreach (Mesa m in mesas.Where(x => x.DetalleAbierto != null).ToList())
@@ -164,6 +164,7 @@ namespace restoAPI.Controllers
             {
                 return BadRequest();
             }
+            value.DetalleAbierto = null;
             context.Entry(value).State = EntityState.Modified;
             var mesa = context.Mesas.First(x => x.Id == value.Id);
             DetalleMesa detalleMesa = await context.DetallesMesa.Include(x=>x.Pedido).FirstOrDefaultAsync(x=> x.Id==idDetalle);
@@ -171,9 +172,8 @@ namespace restoAPI.Controllers
             detalleMesa.HoraCierre = DateTime.Now.TimeOfDay;
             if (detalleMesa.Pedido != null)
             {
-                detalleMesa.Pedido.EstadoPedido = await context.EstadosPedido.FirstOrDefaultAsync(x => x.Id == 10);
+                detalleMesa.Pedido.EstadoPedido = await context.EstadosPedido.FirstOrDefaultAsync(x => x.Id == 6);
                 context.Entry(detalleMesa.Pedido).State = EntityState.Modified;
-
             }
             
             context.SaveChanges();

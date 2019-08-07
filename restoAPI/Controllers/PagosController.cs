@@ -58,11 +58,8 @@ namespace restoAPI.Controllers
 
                     Pedido pedido = context.Pedidos.Include(g => g.Cobros).ThenInclude(t => t.FormaPago).FirstOrDefault(x => x.Id == idPedido);
                     DetalleCaja detalle = context.DetallesCaja.Include(g => g.Cobros).ThenInclude(t => t.FormaPago).FirstOrDefault(x => x.Id == idDetalleCaja);
-                    context.Pagos.AddRange(value);
-
-
-
-                    foreach (Pago p in value)
+                    List<Pago> listaPago = new List<Pago>();
+                    foreach (Pago p in value.Where(x=>x.Id == null || x.Id==0 || x.Id<0))
                     {
                         p.FormaPago = context.FormasPago.FirstOrDefault(x => x.Id == p.FormaPago.Id);
                         if (p.MarcaTarjeta != null)
@@ -80,9 +77,10 @@ namespace restoAPI.Controllers
                         p.FechaAlta = DateTime.Now.Date;
                         p.HoraAlta = DateTime.Now.TimeOfDay;
                         context.Entry(p.FormaPago).State = EntityState.Modified;
-                       
+                        listaPago.Add(p);
+                            
                     }
-                    context.Pagos.AddRange(value);
+                    context.Pagos.AddRange(listaPago);
 
                     List<Int32> idsCobros = new List<int>();
 
@@ -94,25 +92,33 @@ namespace restoAPI.Controllers
                     {
                         idsCobros.Add(p.Id);
                     }
-                    pedido.Cobros.AddRange(context.Pagos.Where(t => idsCobros.Contains(t.Id)));
-                    detalle.Cobros.AddRange(context.Pagos.Where(t => idsCobros.Contains(t.Id)));
+                   // pedido.Cobros.AddRange(context.Pagos.Where(t => idsCobros.Contains(t.Id)));
+                    //detalle.Cobros.AddRange(context.Pagos.Where(t => idsCobros.Contains(t.Id)));
 
-                    if ( (pedido.IdDetalleMesa==null || pedido.IdDetalleMesa==0) && pedido.Cobros.Sum(x => x.Monto) == pedido.MontoTotal)
+                    if (  pedido.Cobros.Sum(x => x.Monto) == pedido.MontoTotal)
                     {
-                        if (value.Sum(x => x.Monto) == pedido.MontoTotal)
                             pedido.EstadoPedido = context.EstadosPedido.FirstOrDefault(x => x.Id == 10);
+                        if((pedido.IdDetalleMesa != null && pedido.IdDetalleMesa != 0))
+                        {
+                            Mesa mesa = context.Mesas.Include(x=>x.DetalleAbierto).First(x => x.DetalleAbierto.Id == pedido.IdDetalleMesa) ;
+                            DetalleMesa det = context.DetallesMesa.First(x => x.Id == mesa.DetalleAbierto.Id);
+                            det.FechaCierre = DateTime.Now.Date;
+                            det.HoraCierre = DateTime.Now.TimeOfDay;
+                            context.Entry(det).State = EntityState.Modified;
+                            mesa.DetalleAbierto = null;
+                            context.Entry(mesa).State = EntityState.Modified;
+                            context.SaveChanges();
+                        }
                     }
+                  
                     
                     context.Entry(pedido).State = EntityState.Modified;
                     context.Entry(detalle).State = EntityState.Modified;
 
-                    context.SaveChanges();
-                    List<Pago> lista = context.Pagos.Where(t => idsCobros.Contains(t.Id)).ToList();
-                    pedido.Cobros.AddRange(lista);
-                    detalle.Cobros.AddRange(lista);
+
                     context.SaveChanges();
                     transaction.Commit();
-                    return Ok(lista);
+                    return Ok(value);
                 }
                 catch (Exception ex)
                 {

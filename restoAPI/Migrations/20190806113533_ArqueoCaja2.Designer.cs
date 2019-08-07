@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using restoAPI.Context;
 
 namespace restoAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190806113533_ArqueoCaja2")]
+    partial class ArqueoCaja2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -212,6 +214,8 @@ namespace restoAPI.Migrations
 
                     b.HasIndex("ArqueoCajaId");
 
+                    b.HasIndex("DetalleCajaId");
+
                     b.HasIndex("FormaPagoId");
 
                     b.ToTable("DetallesArqueo");
@@ -222,8 +226,6 @@ namespace restoAPI.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int?>("ArqueoId");
 
                     b.Property<int?>("CajaId");
 
@@ -244,8 +246,6 @@ namespace restoAPI.Migrations
                     b.Property<decimal>("MontoCierre");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ArqueoId");
 
                     b.HasIndex("CajaId");
 
@@ -715,6 +715,11 @@ namespace restoAPI.Migrations
                         .WithMany("Detalles")
                         .HasForeignKey("ArqueoCajaId");
 
+                    b.HasOne("restoAPI.Entities.DetalleCaja")
+                        .WithMany("Arqueo")
+                        .HasForeignKey("DetalleCajaId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("restoAPI.Entities.FormaPago", "FormaPago")
                         .WithMany()
                         .HasForeignKey("FormaPagoId");
@@ -722,10 +727,6 @@ namespace restoAPI.Migrations
 
             modelBuilder.Entity("restoAPI.Entities.DetalleCaja", b =>
                 {
-                    b.HasOne("restoAPI.Entities.ArqueoCaja", "Arqueo")
-                        .WithMany()
-                        .HasForeignKey("ArqueoId");
-
                     b.HasOne("restoAPI.Entities.Caja")
                         .WithMany("Detalles")
                         .HasForeignKey("CajaId");

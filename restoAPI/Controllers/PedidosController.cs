@@ -70,7 +70,7 @@ namespace restoAPI.Controllers
                     .Include("Direccion.Barrio").Include("Direccion.TipoDireccion")
                     .Include(x => x.ListaComandas).ThenInclude(c=>c.Detalles).Include(x => x.Cliente)
                     .Include(g => g.Cobros).ThenInclude(t => t.FormaPago).
-                    Include(x => x.EstadoPedido).Where(x => x.EstadoPedido.Id < 4 && x.IdDetalleMesa == null).ToListAsync();
+                    Include(x => x.EstadoPedido).Where(x => x.EstadoPedido.Id <=8  && x.IdDetalleMesa == null).ToListAsync();
 
 
                 foreach (Pedido p in listaPedidos)
@@ -109,7 +109,7 @@ namespace restoAPI.Controllers
                 List<int> ids = new List<int>();
                 //TODO: Ver el estado pedido que estoy buscando
                 List<Pedido> listaPedidos = await context.Pedidos.Include(x => x.PuntoExpendio).Include("Direccion.Barrio")
-                    .Include("Direccion.TipoDireccion").Include(x => x.ListaComandas).Include(x => x.Cliente).Include(x => x.Cobros)
+                    .Include("Direccion.TipoDireccion").Include(x => x.ListaComandas).Include(x => x.Cliente).Include(x => x.Cobros).ThenInclude(x=>x.FormaPago)
                     .Include(x => x.EstadoPedido).Where(x => (x.EstadoPedido.Id <=8) && x.IdDetalleMesa==null && x.FechaBaja==null).ToListAsync();
 
 
@@ -168,7 +168,12 @@ namespace restoAPI.Controllers
         public ActionResult<Pedido> Get(Int16 id)
         {
             var value = context.Pedidos.Include(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i => i.PrecioActual)
-                    .Include(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i => i.TipoDeProducto).FirstOrDefault(x => x.Id == id);
+                    .Include(p => p.ListaComandas).ThenInclude(d => d.Detalles).ThenInclude(f => f.Producto).ThenInclude(i => i.TipoDeProducto)
+                    .Include(x=>x.Cobros).ThenInclude(y=>y.FormaPago).FirstOrDefault(x => x.Id == id);
+
+            var detalles = context.DetallesPedido.FromSql("select * from DetallesPedido where IdPedido = " + id).ToList();
+            value.DetallesPedido = new List<DetallePedido>();
+            value.DetallesPedido.AddRange(detalles);
             if (value == null)
             {
                 return NotFound();

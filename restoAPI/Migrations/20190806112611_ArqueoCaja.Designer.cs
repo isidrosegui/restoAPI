@@ -3,40 +3,23 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using restoAPI.Context;
 
 namespace restoAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190806112611_ArqueoCaja")]
+    partial class ArqueoCaja
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("restoAPI.Entities.ArqueoCaja", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("FechaArqueo");
-
-                    b.Property<DateTime?>("FechaBaja");
-
-                    b.Property<TimeSpan>("HoraArqueo");
-
-                    b.Property<TimeSpan?>("HoraBaja");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ArqueoCajas");
-                });
 
             modelBuilder.Entity("restoAPI.Entities.Banco", b =>
                 {
@@ -190,8 +173,6 @@ namespace restoAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("ArqueoCajaId");
-
                     b.Property<int>("DetalleCajaId");
 
                     b.Property<DateTime>("FechaAlta");
@@ -210,7 +191,7 @@ namespace restoAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ArqueoCajaId");
+                    b.HasIndex("DetalleCajaId");
 
                     b.HasIndex("FormaPagoId");
 
@@ -222,8 +203,6 @@ namespace restoAPI.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int?>("ArqueoId");
 
                     b.Property<int?>("CajaId");
 
@@ -244,8 +223,6 @@ namespace restoAPI.Migrations
                     b.Property<decimal>("MontoCierre");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ArqueoId");
 
                     b.HasIndex("CajaId");
 
@@ -711,9 +688,10 @@ namespace restoAPI.Migrations
 
             modelBuilder.Entity("restoAPI.Entities.DetalleArqueo", b =>
                 {
-                    b.HasOne("restoAPI.Entities.ArqueoCaja")
-                        .WithMany("Detalles")
-                        .HasForeignKey("ArqueoCajaId");
+                    b.HasOne("restoAPI.Entities.DetalleCaja")
+                        .WithMany("Arqueo")
+                        .HasForeignKey("DetalleCajaId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("restoAPI.Entities.FormaPago", "FormaPago")
                         .WithMany()
@@ -722,10 +700,6 @@ namespace restoAPI.Migrations
 
             modelBuilder.Entity("restoAPI.Entities.DetalleCaja", b =>
                 {
-                    b.HasOne("restoAPI.Entities.ArqueoCaja", "Arqueo")
-                        .WithMany()
-                        .HasForeignKey("ArqueoId");
-
                     b.HasOne("restoAPI.Entities.Caja")
                         .WithMany("Detalles")
                         .HasForeignKey("CajaId");
