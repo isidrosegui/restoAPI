@@ -125,6 +125,9 @@ namespace restoAPI.Controllers
                     transaction.Rollback();
                     return BadRequest(ex);
                 }
+                finally{
+                    transaction.Dispose();
+                }
             }
         }
 

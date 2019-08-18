@@ -15,6 +15,6 @@ namespace restoAPI.Entities
         public TimeSpan? HoraBaja { get; set; }
         public DateTime? FechaCierreArqueo { get; set; }
         public TimeSpan? HoraCierreArqueo { get; set; }
-
+        public EstadoArqueo Estado { get; set; }
     }
 }

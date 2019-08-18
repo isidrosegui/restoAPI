@@ -12,13 +12,13 @@ namespace restoAPI.Entities
         public DateTime? FechaApertura { get; set; }
         public TimeSpan HoraApertura { get; set; }
         public DateTime? FechaCierre { get; set; }
-        public TimeSpan HoraCierre { get; set; }
+        public TimeSpan? HoraCierre { get; set; }
         public Decimal MontoApertura { get; set; }
         public Decimal MontoCierre { get; set; }
         public List<Pago> Cobros { get; set; }
         public DateTime? FechaBaja { get; set; }
         public TimeSpan? HoraBaja { get; set; }
         public ArqueoCaja Arqueo { get; set; }
-
+        public Int32 CajaId { get; set; }
     }
 }

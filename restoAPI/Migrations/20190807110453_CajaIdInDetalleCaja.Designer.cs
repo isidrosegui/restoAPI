@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using restoAPI.Context;
 
 namespace restoAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190807110453_CajaIdInDetalleCaja")]
+    partial class CajaIdInDetalleCaja
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,8 +26,6 @@ namespace restoAPI.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int?>("EstadoId");
 
                     b.Property<DateTime>("FechaArqueo");
 
@@ -40,8 +40,6 @@ namespace restoAPI.Migrations
                     b.Property<TimeSpan?>("HoraCierreArqueo");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("EstadoId");
 
                     b.ToTable("ArqueoCajas");
                 });
@@ -86,11 +84,15 @@ namespace restoAPI.Migrations
 
                     b.Property<string>("Descripcion");
 
+                    b.Property<int?>("DetalleAbiertoId");
+
                     b.Property<bool>("EstaAbierta");
 
                     b.Property<DateTime?>("FechaBaja");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DetalleAbiertoId");
 
                     b.ToTable("Cajas");
                 });
@@ -357,21 +359,6 @@ namespace restoAPI.Migrations
                     b.HasIndex("TipoDireccionId");
 
                     b.ToTable("Direcciones");
-                });
-
-            modelBuilder.Entity("restoAPI.Entities.EstadoArqueo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Descripcion");
-
-                    b.Property<DateTime?>("FechaBaja");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("EstadosArqueo");
                 });
 
             modelBuilder.Entity("restoAPI.Entities.EstadoDelivery", b =>
@@ -695,11 +682,11 @@ namespace restoAPI.Migrations
                     b.ToTable("TiposTelefono");
                 });
 
-            modelBuilder.Entity("restoAPI.Entities.ArqueoCaja", b =>
+            modelBuilder.Entity("restoAPI.Entities.Caja", b =>
                 {
-                    b.HasOne("restoAPI.Entities.EstadoArqueo", "Estado")
+                    b.HasOne("restoAPI.Entities.DetalleCaja", "DetalleAbierto")
                         .WithMany()
-                        .HasForeignKey("EstadoId");
+                        .HasForeignKey("DetalleAbiertoId");
                 });
 
             modelBuilder.Entity("restoAPI.Entities.Cliente", b =>

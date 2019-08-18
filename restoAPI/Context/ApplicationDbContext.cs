@@ -43,6 +43,7 @@ namespace restoAPI.Context
         public DbSet<TipoTelefono> TiposTelefono{ get; set; }
         public DbSet<DetalleArqueo> DetallesArqueo { get; set; }
         public DbSet<ArqueoCaja> ArqueoCajas { get; set; }
+        public DbSet<EstadoArqueo> EstadosArqueo{ get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Pedido>().Ignore(c => c.DetallesPedido);

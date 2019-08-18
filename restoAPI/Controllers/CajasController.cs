@@ -27,20 +27,43 @@ namespace restoAPI.Controllers
 
             try {
                 //TODO: Luego vamos a ver como lo hacemos de forma asincronica
-                var lista = context.Cajas.Include(x => x.DetalleAbierto).ThenInclude(y => y.Cobros).Where(x => x.FechaBaja == null).ToList();
+                var lista = context.Cajas.Include(x => x.Detalles).ThenInclude(y => y.Cobros).ThenInclude(h=>h.FormaPago).Where(x => x.FechaBaja == null).ToList();
+                foreach(Caja  c in lista)
+                {
+                    c.DetalleAbierto = c.Detalles.FirstOrDefault(x => x.FechaCierre == null && x.FechaBaja==null);
+                    c.Detalles = null;
+                }
+
                 return lista;
             } catch(Exception ex)
             {
                 return BadRequest(ex);
-
-
-
             }
+        }
+
+        [HttpGet("sinArqueo")]
+        public ActionResult<IEnumerable<Caja>> GetSinArqueo()
+        {
+            try
+            {
+                //TODO: Luego vamos a ver como lo hacemos de forma asincronica
+                var listaCaja = context.Cajas.Include(x => x.Detalles).ThenInclude(y => y.Cobros).ThenInclude(h => h.FormaPago)
+                    .Include(g=>g.Detalles).ThenInclude(t=>t.Cobros).Where(x => x.FechaBaja == null)
+                    .Include(x=>x.Detalles).ThenInclude(a=>a.Arqueo).ThenInclude(r=>r.Detalles)
+                    .Include(x => x.Detalles).ThenInclude(a => a.Arqueo).ThenInclude(r => r.Estado).ToList();
+                
+
+                return listaCaja;
             }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
         [HttpGet("{id}", Name = "ObtenerCajaById")]
         public ActionResult<Caja> Get(Int16 id)
         {
-            var value = context.Cajas.Include(x => x.DetalleAbierto).ThenInclude(y => y.Cobros).FirstOrDefault(x => x.Id == id);
+            var value = context.Cajas.Include(x => x.DetalleAbierto).ThenInclude(y => y.Cobros).ThenInclude(h => h.FormaPago).FirstOrDefault(x => x.Id == id);
             if (value == null)
             {
                 return NotFound();
@@ -63,7 +86,9 @@ namespace restoAPI.Controllers
             {
                 return BadRequest();
             }
+
             context.Entry(value).State = EntityState.Modified;
+
             context.SaveChanges();
             return Ok();
 
@@ -81,6 +106,7 @@ namespace restoAPI.Controllers
             det.MontoApertura = value.DetalleAbierto.MontoApertura;
             det.FechaApertura = DateTime.Now.Date;
             det.HoraApertura = DateTime.Now.TimeOfDay;
+            det.CajaId = value.Id;
             context.DetallesCaja.Add(det);
             context.SaveChanges();
             value.DetalleAbierto = det;
@@ -89,6 +115,43 @@ namespace restoAPI.Controllers
             return Ok(value);
 
         }
+
+
+        [HttpPut("cerrar/{id}")]
+        public ActionResult PutCerrar(Int16 id, [FromBody] Caja value)
+        {
+           
+            using (var transaction = context.Database.BeginTransaction())
+            {
+                try
+                {
+                    if (id != value.Id)
+                    {
+                        return BadRequest();
+                    }
+                    DetalleCaja det = context.DetallesCaja.FirstOrDefault(x => x.Id == value.DetalleAbierto.Id);
+                    det.HoraCierre = value.DetalleAbierto.HoraCierre;
+                    det.FechaCierre = value.DetalleAbierto.FechaCierre;
+                    det.MontoCierre = value.DetalleAbierto.Cobros.Where(v=>v.FechaBaja==null).Sum(x => x.Monto);
+                    context.Entry(det).State = EntityState.Modified;
+                    context.Entry(value).State = EntityState.Modified;
+                    context.SaveChanges();
+                    transaction.Commit();
+                    return Ok();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    return BadRequest(ex);
+                }
+                finally
+                {
+                    transaction.Dispose();
+                }
+            }
+           
+        }
+
 
         [HttpDelete("{id}")]
         public ActionResult<Caja> Delete(Int16 id)
