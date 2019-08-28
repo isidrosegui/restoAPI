@@ -35,10 +35,14 @@ namespace restoAPI.Controllers
         public async Task<ActionResult<IEnumerable<Pedido>>> Get([FromQuery]string idEstado1, [FromQuery]string idEstado2, [FromQuery] string idPuntoExpendio)
         {
             
-            var lista = await context.Pedidos.Include(x=>x.PuntoExpendio).Include(x=>x.Direccion).
-                Include(x=>x.Cliente).Include(x=>x.ListaComandas).Include(x=>x.Cobros).Include(x=>x.EstadoPedido)
-                  .Include(g => g.Cobros).ThenInclude(t => t.FormaPago).
-                    Where(x=> ((string.IsNullOrEmpty(idEstado1) || x.EstadoPedido.Id==Convert.ToInt32(idEstado1)) ||
+            var lista = await context.Pedidos.Include(x=>x.PuntoExpendio)
+                .Include(x=>x.Direccion).ThenInclude(h=>h.Barrio).Include(x=>x.Direccion).ThenInclude(j=>j.TipoDireccion)
+                .Include(x=>x.Cliente)
+                .Include(x=>x.ListaComandas)
+                .Include(x=>x.Cobros)
+                .Include(x=>x.EstadoPedido)
+                .Include(g => g.Cobros).ThenInclude(t => t.FormaPago)
+                .Where(x=> ((string.IsNullOrEmpty(idEstado1) || x.EstadoPedido.Id==Convert.ToInt32(idEstado1)) ||
                         (string.IsNullOrEmpty(idEstado2) || x.EstadoPedido.Id == Convert.ToInt32(idEstado2))) &&
                             (string.IsNullOrEmpty(idPuntoExpendio) || x.PuntoExpendio.Id == Convert.ToInt32(idPuntoExpendio))).ToListAsync();
             string comandas = "";

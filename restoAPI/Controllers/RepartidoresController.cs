@@ -25,7 +25,7 @@ namespace restoAPI.Controllers
         public ActionResult<IEnumerable<Repartidor>> Get()
         {
             //TODO: Luego vamos a ver como lo hacemos de forma asincronica
-            return context.Repartidores.ToList();
+            return context.Repartidores.Where(x=>x.FechaBaja==null).ToList();
         }
 
         [HttpGet("{id}", Name = "ObtenerRepartidorById")]

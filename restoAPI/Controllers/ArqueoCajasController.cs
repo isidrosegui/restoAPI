@@ -85,7 +85,7 @@ namespace restoAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public ActionResult Put(Int32 Id, [FromQuery]Int32 IdDetalleCaja, [FromQuery]String CerrarCaja, [FromBody] ArqueoCaja value)
+        public ActionResult Put(Int32 Id, [FromQuery]Int32 IdDetalleCaja, [FromQuery]String CerrarArqueo, [FromBody] ArqueoCaja value)
         {
             using (var transaction = context.Database.BeginTransaction())
             {
@@ -94,9 +94,15 @@ namespace restoAPI.Controllers
                     ArqueoCaja arqEx = context.ArqueoCajas.Include(x => x.Detalles).ThenInclude(y => y.FormaPago)
                         .Include(x => x.Estado).First(x => x.Id == Id);
 
+
+
                     arqEx.Estado = context.EstadosArqueo.FirstOrDefault(x => x.Id == value.Estado.Id);
-                    
-                    DetalleCaja det = context.DetallesCaja.FirstOrDefault(x => x.Id == IdDetalleCaja);
+                    if (CerrarArqueo == "si")
+                    {
+                        arqEx.Estado = context.EstadosArqueo.FirstOrDefault(x => x.Id == 2);
+                        context.Entry(arqEx.Estado).State = EntityState.Modified;
+                    }
+                        DetalleCaja det = context.DetallesCaja.Include(x=>x.Cobros).FirstOrDefault(x => x.Id == IdDetalleCaja);
 
                     for(int i = 0; i < value.Detalles.Count; i++)
                     {
@@ -109,7 +115,9 @@ namespace restoAPI.Controllers
                         {
                            DetalleArqueo deta = arqEx.Detalles.FirstOrDefault(x => x.Id == d.Id) ;
                            deta.FechaBaja = d.FechaBaja;
-                            deta.HoraBaja = d.HoraBaja;
+                           deta.HoraBaja = d.HoraBaja;
+                           deta.Monto = d.Monto;
+                            deta.Observaciones = d.Observaciones;
                            context.Entry(deta).State = EntityState.Modified;
                         }
                         context.Entry(d.FormaPago).State = EntityState.Detached;
@@ -118,13 +126,14 @@ namespace restoAPI.Controllers
                     context.SaveChanges();
 
                     Caja caja = new Caja();
-                    if (CerrarCaja == "si")
+                    if (CerrarArqueo== "si")
                     {
                         caja = context.Cajas.FirstOrDefault(x => x.Id == det.CajaId);
                         det.HoraCierre = DateTime.Now.TimeOfDay;
                         det.FechaCierre = DateTime.Now.Date;
                         det.MontoCierre = det.Cobros.Where(v => v.FechaBaja == null).Sum(x => x.Monto);
                         caja.EstaAbierta = false;
+
                         context.Entry(caja).State = EntityState.Modified;
                     }
                     context.Entry(det).State = EntityState.Modified;
